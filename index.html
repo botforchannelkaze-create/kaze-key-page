@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Kaze Key</title>
+
+<script>
+function copyKey() {
+  var key = document.getElementById("key").innerText;
+  navigator.clipboard.writeText(key);
+
+  alert("Key copied!");
+
+  window.location.href="https://www.google.com";
+}
+
+window.onbeforeunload = function(){
+  window.location.href="https://www.google.com";
+}
+</script>
+
+</head>
+
+<body style="text-align:center;font-family:sans-serif;margin-top:100px;">
+
+<h2>Your Key</h2>
+
+<div id="key" style="font-size:22px;font-weight:bold;">
+KAZE-1234-ABCD
+</div>
+
+<br><br>
+
+<button onclick="copyKey()" style="padding:10px 30px;font-size:18px;">
+COPY KEY
+</button>
+
+</body>
+</html>
