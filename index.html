@@ -1,45 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <title>Kaze Key</title>
 
 <script>
-async function loadKey() {
-  try {
-    const res = await fetch("https://codm-injector-panel.onrender.com/getkey");
-    let text = await res.text();
 
-    // remove "YOUR KEY:" if present
-    let key = text.replace("YOUR KEY:", "").trim();
+async function loadKey(){
 
-    document.getElementById("key").innerText = key;
+  try{
 
-  } catch (e) {
-    document.getElementById("key").innerText = "Server waking up...";
-    setTimeout(loadKey, 3000);
+    let t = await fetch("https://codm-injector-panel.onrender.com/token");
+    let token = await t.text();
+
+    if(token=="denied"){
+      document.body.innerHTML="Access denied please go to main link";
+      return;
+    }
+
+    let k = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+token);
+    let key = await k.text();
+
+    document.getElementById("key").innerText = key.replace("YOUR KEY:","");
+
   }
+  catch{
+    document.getElementById("key").innerText="ERROR LOADING KEY";
+  }
+
 }
 
-function copyKey() {
-  let key = document.getElementById("key").innerText;
+function copyKey(){
 
-  if (key.includes("Loading") || key.includes("Server")) {
-    alert("Key not ready yet.");
-    return;
-  }
+  var key = document.getElementById("key").innerText;
 
   navigator.clipboard.writeText(key);
-  alert("Key copied!");
 
-  window.location.href = "https://www.google.com";
+  alert("Key copied");
+
+  window.location.href="https://www.google.com";
 }
 
 window.onload = loadKey;
 
-window.onbeforeunload = function () {
-  window.location.href = "https://www.google.com";
-};
 </script>
 
 </head>
@@ -48,13 +50,13 @@ window.onbeforeunload = function () {
 
 <h2>KAZE LICENSE KEY</h2>
 
-<div id="key" style="font-size:24px;font-weight:bold;margin-top:20px;">
+<div id="key" style="font-size:24px;font-weight:bold;">
 Loading key...
 </div>
 
 <br><br>
 
-<button onclick="copyKey()" style="padding:12px 35px;font-size:18px;background:#00ffd5;border:none;border-radius:10px;">
+<button onclick="copyKey()" style="padding:12px 35px;font-size:18px;">
 COPY KEY
 </button>
 
