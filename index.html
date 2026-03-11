@@ -4,33 +4,61 @@
 <title>Kaze Key</title>
 
 <script>
-function copyKey() {
+
+// ======================
+// GET KEY FROM SERVER
+// ======================
+async function loadKey(){
+  try{
+    const res = await fetch("https://codm-injector-panel.onrender.com/getkey");
+    const key = await res.text();
+    document.getElementById("key").innerText = key.trim();
+  }catch(e){
+    document.getElementById("key").innerText = "ERROR LOADING KEY";
+  }
+}
+
+// ======================
+// COPY KEY
+// ======================
+function copyKey(){
   var key = document.getElementById("key").innerText;
+
   navigator.clipboard.writeText(key);
 
   alert("Key copied!");
 
+  // redirect after copy
   window.location.href="https://www.google.com";
 }
 
-window.onbeforeunload = function(){
+// ======================
+// REDIRECT IF RELOAD
+// ======================
+window.onbeforeunload=function(){
   window.location.href="https://www.google.com";
 }
+
+// ======================
+// LOAD KEY WHEN PAGE OPEN
+// ======================
+window.onload=loadKey;
+
 </script>
 
 </head>
 
-<body style="text-align:center;font-family:sans-serif;margin-top:100px;">
+<body style="text-align:center;font-family:sans-serif;margin-top:100px;background:#0b0f16;color:white;">
 
-<h2>Your Key</h2>
+<h2>KAZE LICENSE KEY</h2>
 
-<div id="key" style="font-size:22px;font-weight:bold;">
-KAZE-1234-ABCD
+<div id="key" style="font-size:24px;font-weight:bold;margin-top:20px;">
+Loading key...
 </div>
 
 <br><br>
 
-<button onclick="copyKey()" style="padding:10px 30px;font-size:18px;">
+<button onclick="copyKey()" style="padding:12px 35px;font-size:18px;background:#00ffd5;border:none;border-radius:10px;">
 COPY KEY
 </button>
 
