@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>Kaze Key</title>
 
 <script>
-
-// ======================
-// LOAD KEY FROM SERVER
-// ======================
 async function loadKey() {
   try {
-    let res = await fetch("https://codm-injector-panel.onrender.com/getkey");
+    const res = await fetch("https://codm-injector-panel.onrender.com/getkey");
     let text = await res.text();
 
     // remove "YOUR KEY:" if present
@@ -18,47 +15,31 @@ async function loadKey() {
 
     document.getElementById("key").innerText = key;
 
-  } catch(e) {
-
+  } catch (e) {
     document.getElementById("key").innerText = "Server waking up...";
-
-    // retry after 3 seconds
-    setTimeout(loadKey,3000);
+    setTimeout(loadKey, 3000);
   }
 }
 
-// ======================
-// COPY KEY
-// ======================
 function copyKey() {
+  let key = document.getElementById("key").innerText;
 
-  var key = document.getElementById("key").innerText;
-
-  if(key.includes("Loading") || key.includes("Server")){
+  if (key.includes("Loading") || key.includes("Server")) {
     alert("Key not ready yet.");
     return;
   }
 
   navigator.clipboard.writeText(key);
-
   alert("Key copied!");
 
-  // redirect after copy
-  window.location.href="https://www.google.com";
+  window.location.href = "https://www.google.com";
 }
 
-// ======================
-// REDIRECT IF USER LEAVES
-// ======================
-window.onbeforeunload = function(){
-  window.location.href="https://www.google.com";
-}
-
-// ======================
-// LOAD KEY WHEN PAGE OPENS
-// ======================
 window.onload = loadKey;
 
+window.onbeforeunload = function () {
+  window.location.href = "https://www.google.com";
+};
 </script>
 
 </head>
@@ -73,8 +54,7 @@ Loading key...
 
 <br><br>
 
-<button onclick="copyKey()" 
-style="padding:12px 35px;font-size:18px;background:#00ffd5;border:none;border-radius:10px;">
+<button onclick="copyKey()" style="padding:12px 35px;font-size:18px;background:#00ffd5;border:none;border-radius:10px;">
 COPY KEY
 </button>
 
