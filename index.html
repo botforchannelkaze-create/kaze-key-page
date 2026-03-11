@@ -5,6 +5,29 @@
 
 <script>
 
+// ======================
+// BLOCK DIRECT OPEN
+// ======================
+let ref = document.referrer;
+
+if(!ref.includes("work.ink")){
+document.write("Access denied please go to main link");
+throw new Error("blocked");
+}
+
+
+// ======================
+// ANTI REFRESH
+// ======================
+if(sessionStorage.getItem("key_used")){
+document.write("Key already generated. Please go back to main link.");
+throw new Error("already used");
+}
+
+
+// ======================
+// LOAD KEY
+// ======================
 async function loadKey(){
 
   try{
@@ -12,13 +35,20 @@ async function loadKey(){
     let t = await fetch("https://codm-injector-panel.onrender.com/token");
     let token = await t.text();
 
-    if(token=="denied"){
-      document.body.innerHTML="Access denied please go to main link";
+    if(token.includes("denied") || token.includes("wait")){
+      document.getElementById("key").innerText = token;
       return;
     }
 
     let k = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+token);
     let key = await k.text();
+
+    if(key.includes("Access denied") || key.includes("expired")){
+      document.getElementById("key").innerText = key;
+      return;
+    }
+
+    sessionStorage.setItem("key_used","true");
 
     document.getElementById("key").innerText = key.replace("YOUR KEY:","");
 
@@ -29,6 +59,10 @@ async function loadKey(){
 
 }
 
+
+// ======================
+// COPY KEY
+// ======================
 function copyKey(){
 
   var key = document.getElementById("key").innerText;
@@ -38,9 +72,13 @@ function copyKey(){
   alert("Key copied");
 
   window.location.href="https://www.google.com";
+
 }
 
+
+// ======================
 window.onload = loadKey;
+// ======================
 
 </script>
 
@@ -56,7 +94,7 @@ Loading key...
 
 <br><br>
 
-<button onclick="copyKey()" style="padding:12px 35px;font-size:18px;">
+<button onclick="copyKey()" style="padding:12px 35px;font-size:18px;background:#00ffd5;border:none;border-radius:10px;">
 COPY KEY
 </button>
 
