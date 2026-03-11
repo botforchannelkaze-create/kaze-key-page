@@ -2,39 +2,38 @@
 <html>
 <head>
 <title>Kaze Key</title>
-
 <script>
-
-// ======================
-// GET KEY FROM SERVER
-// ======================
-async function loadKey(){
-  try{
-    const res = await fetch("https://codm-injector-panel.onrender.com/getkey");
-    const key = await res.text();
-    document.getElementById("key").innerText = key.trim();
-  }catch(e){
+async function loadKey() {
+  try {
+    let res = await fetch("https://codm-injector-panel.onrender.com/getkey");
+    let text = await res.text();
+    document.getElementById("key").innerText = text.split(":")[1].trim();
+  } catch(e) {
     document.getElementById("key").innerText = "ERROR LOADING KEY";
   }
 }
 
-// ======================
-// COPY KEY
-// ======================
-function copyKey(){
+function copyKey() {
   var key = document.getElementById("key").innerText;
-
   navigator.clipboard.writeText(key);
-
   alert("Key copied!");
-
-  // redirect after copy
   window.location.href="https://www.google.com";
 }
 
-// ======================
-// REDIRECT IF RELOAD
-// ======================
+window.onbeforeunload = function(){
+  window.location.href="https://www.google.com";
+}
+
+window.onload = loadKey;
+</script>
+</head>
+<body style="text-align:center;font-family:sans-serif;margin-top:100px;">
+<h2>Your Key</h2>
+<div id="key" style="font-size:22px;font-weight:bold;">Loading...</div>
+<br><br>
+<button onclick="copyKey()" style="padding:10px 30px;font-size:18px;">COPY KEY</button>
+</body>
+</html>// ======================
 window.onbeforeunload=function(){
   window.location.href="https://www.google.com";
 }
