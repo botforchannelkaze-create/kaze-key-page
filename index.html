@@ -14,7 +14,7 @@
 
             try {
                 // Step 1: Kumuha ng Session Token mula sa Referer (Work.ink)
-                let t = await fetch("https://codm-injector-panel.onrender.com/token");
+                let t = await fetch("https://codm-injector-panel.onrender.com");
                 let sessionToken = await t.text();
 
                 if (sessionToken.includes("ERROR") || sessionToken.includes("COOLDOWN") || sessionToken.includes("Access")) {
