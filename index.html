@@ -1,62 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Kaze License System</title>
+    <title>KAZE KEY SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { text-align:center; font-family:sans-serif; margin-top:100px; background:#0b0f16; color:white; }
-        .key-box { font-size:24px; font-weight:bold; margin: 20px 0; color: #00ff00; word-break: break-all; padding: 20px; border: 2px dashed #2c7cff; border-radius: 10px; display: inline-block; min-width: 250px; }
-        .loading { color: #888; font-style: italic; }
-        button { padding:12px 35px; background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; display:none; }
-    </style>
     <script>
-        // ITO ANG MAGIC: Tatakbo agad pagka-load ng page
         window.onload = async function() {
             const keyElement = document.getElementById("key");
-            const copyBtn = document.getElementById("copyBtn");
             const urlParams = new URLSearchParams(window.location.search);
             const source = urlParams.get('source');
 
-            keyElement.innerText = "Verifying Link...";
+            // CLEANUP: Burahin ang ?source=workink sa URL bar para sa anti-refresh
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            if (!source || source !== "workink") {
+                keyElement.innerText = "ACCESS DENIED: Please use the official link.";
+                keyElement.style.color = "red";
+                return;
+            }
+
+            keyElement.innerText = "Generating License...";
             
             try {
-                // Step 1: Get Token
-                let t = await fetch(`https://codm-injector-panel.onrender.com/token?source=${source}`);
-                if (!t.ok) {
-                    keyElement.innerText = "ACCESS DENIED: Please use the official link.";
-                    keyElement.style.color = "red";
-                    keyElement.style.border = "2px solid red";
+                let tReq = await fetch(`https://codm-injector-panel.onrender.com/token?source=workink`);
+                if (!tReq.ok) {
+                    keyElement.innerText = await tReq.text();
                     return;
                 }
-                let token = await t.text();
+                let token = await tReq.text();
 
-                // Step 2: Get Key
-                let k = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
-                let res = await k.json();
+                let kReq = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
+                let res = await kReq.json();
 
                 if (res.status === "success") {
                     keyElement.innerText = res.key;
-                    copyBtn.style.display = "inline-block";
+                    document.getElementById("copyBtn").style.display = "inline-block";
                 } else {
                     keyElement.innerText = res.message;
-                    keyElement.style.color = "red";
                 }
             } catch (err) {
-                keyElement.innerText = "Server Error. Refresh and try again.";
+                keyElement.innerText = "Server error. Try again later.";
             }
         };
-
-        function copyKey() {
-            navigator.clipboard.writeText(document.getElementById("key").innerText);
-            alert("Key copied!");
-        }
     </script>
 </head>
-<body>
+<body style="text-align:center; font-family:sans-serif; background:#0b0f16; color:white; padding-top:100px;">
     <h2>KAZE LICENSE GENERATOR</h2>
-    <div id="key" class="key-box">Initializing...</div>
-    <br>
-    <button id="copyBtn" onclick="copyKey()">COPY KEY</button>
-    <p style="margin-top:40px; color:#555; font-size:12px;">Official bypass protection active.</p>
+    <div id="key" style="font-size:22px; font-weight:bold; margin:20px; color:#00ff00; border:1px solid #333; padding:20px;">Initializing...</div>
+    <button id="copyBtn" style="display:none; padding:10px 20px;" onclick="navigator.clipboard.writeText(document.getElementById('key').innerText); alert('Copied!')">COPY KEY</button>
 </body>
 </html>
