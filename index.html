@@ -1,101 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Kaze Key</title>
+    <title>Kaze Key</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Mas safe kung hindi agad mag-lo-load ang key
+        async function generateKey() {
+            const keyElement = document.getElementById("key");
+            const btn = document.getElementById("genBtn");
+            
+            keyElement.innerText = "Generating...";
+            btn.disabled = true; // Disable para iwas spam
 
-<script>
+            try {
+                // Step 1: Kumuha ng Session Token mula sa Referer (Work.ink)
+                let t = await fetch("https://codm-injector-panel.onrender.com/token");
+                let sessionToken = await t.text();
 
-let sessionToken="";
+                if (sessionToken.includes("ERROR") || sessionToken.includes("COOLDOWN") || sessionToken.includes("Access")) {
+                    keyElement.innerText = sessionToken;
+                    btn.disabled = false;
+                    return;
+                }
 
-async function loadKey(){
+                // Step 2: Gamitin ang token para makuha ang actual key
+                let k = await fetch("https://codm-injector-panel.onrender.com/getkey?token=" + sessionToken);
+                let response = await k.json(); // Mas malinis kung JSON
 
-  try{
+                if (response.status === "success") {
+                    keyElement.innerText = response.key;
+                    btn.style.display = "none"; // Itago ang generate button
+                    document.getElementById("copyBtn").style.display = "inline-block"; // Ipakita ang copy
+                } else {
+                    keyElement.innerText = response.message || "Access denied";
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                keyElement.innerText = "Server error. Refresh page.";
+                btn.disabled = false;
+            }
+        }
 
-    let t = await fetch("https://codm-injector-panel.onrender.com/session");
-    sessionToken = await t.text();
-
-    if(
-      !sessionToken ||
-      sessionToken.includes("Please") ||
-      sessionToken.includes("Access") ||
-      sessionToken.includes("wait")
-    ){
-      document.getElementById("key").innerText = sessionToken;
-      return;
-    }
-
-    let k = await fetch(
-      "https://codm-injector-panel.onrender.com/getkey?token="+sessionToken
-    );
-
-    let key = await k.text();
-
-    if(!key || key.includes("Access") || key.includes("Token")){
-      document.getElementById("key").innerText = key;
-      return;
-    }
-
-    key = key.replace("YOUR KEY:","").trim();
-
-    document.getElementById("key").innerText = key;
-
-  }
-
-  catch(err){
-
-    document.getElementById("key").innerText = "Server error. Try again.";
-
-  }
-
-}
-
-
-function copyKey(){
-
-  let key=document.getElementById("key").innerText;
-
-  if(!key || key==="Loading key..." || key.includes("Please")){
-    alert("No valid key to copy");
-    return;
-  }
-
-  navigator.clipboard.writeText(key);
-  alert("Key copied!");
-
-}
-
-window.onload=loadKey;
-
-</script>
-
+        function copyKey() {
+            let key = document.getElementById("key").innerText;
+            navigator.clipboard.writeText(key);
+            alert("Key copied!");
+        }
+    </script>
 </head>
 
-<body style="
-text-align:center;
-font-family:sans-serif;
-margin-top:100px;
-background:#0b0f16;
-color:white;
-">
+<body style="text-align:center; font-family:sans-serif; margin-top:100px; background:#0b0f16; color:white;">
 
-<h2>KAZE LICENSE KEY</h2>
+    <h2>KAZE LICENSE KEY</h2>
 
-<div id="key" style="font-size:24px;font-weight:bold;">
-Loading key...
-</div>
+    <div id="key" style="font-size:24px; font-weight:bold; margin-bottom: 20px; color: #00ff00;">
+        Click the button to get your key
+    </div>
 
-<br><br>
+    <button id="genBtn" onclick="generateKey()" style="padding:12px 35px; font-size:18px; border-radius:6px; border:none; background:#2c7cff; color:white; cursor:pointer;">
+        GENERATE KEY
+    </button>
 
-<button onclick="copyKey()" style="
-padding:12px 35px;
-font-size:18px;
-border-radius:6px;
-border:none;
-background:#2c7cff;
-color:white;
-">
-COPY KEY
-</button>
+    <button id="copyBtn" onclick="copyKey()" style="display:none; padding:12px 35px; font-size:18px; border-radius:6px; border:none; background:#28a745; color:white; cursor:pointer;">
+        COPY KEY
+    </button>
+
+    <p style="font-size: 12px; color: #888; margin-top: 30px;">
+        Note: Key is valid for 24 hours only.
+    </p>
 
 </body>
 </html>
