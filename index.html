@@ -39,30 +39,26 @@ button:hover { transform:scale(1.05); }
 <button onclick="copyKey()">COPY KEY</button>
 
 <script>
+
 // ======================
-// REFERRER CHECK
+// REQUIRE WORKINK REFERRER
 // ======================
 if(!document.referrer.includes("work.ink")){
-    document.getElementById("key").innerText = "Access denied, go to main link";
-    throw new Error("blocked");
+    window.location.href = "https://work.ink/2mGW/kazehayamodz-free-key";
 }
 
 // ======================
-// COOLDOWN TIMER VARIABLES
+// PREVENT REFRESH SPAM
 // ======================
-let cooldownSeconds = 0;
+if(sessionStorage.getItem("generated")){
+    window.location.href = "https://work.ink/2mGW/kazehayamodz-free-key";
+}
 
 // ======================
-// LOAD KEY FUNCTION
+// LOAD KEY
 // ======================
 async function loadKey(){
     try{
-        // check if still in cooldown
-        if(cooldownSeconds > 0){
-            document.getElementById("timer").innerText = 
-                `Please wait ${cooldownSeconds}s before getting a new key`;
-            return;
-        }
 
         document.getElementById("key").innerText = "Loading key...";
 
@@ -70,7 +66,7 @@ async function loadKey(){
         let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
         let token = await tokenRes.text();
 
-        if(token.includes("Access denied") || token.includes("Cooldown")){
+        if(token.includes("Wait") || token.includes("Cooldown")){
             document.getElementById("key").innerText = token;
             return;
         }
@@ -84,39 +80,18 @@ async function loadKey(){
             return;
         }
 
-        // show key
+        // MARK GENERATED (ANTI REFRESH)
+        sessionStorage.setItem("generated","true");
+
         document.getElementById("key").innerText = data.key;
 
-        // start cooldown (KEY_LIMIT)
-        cooldownSeconds = 60; // 60 sec before next key
-        startCooldownTimer();
-
-    }catch(err){
-        console.log(err);
+    }catch(e){
         document.getElementById("key").innerText = "SERVER ERROR";
     }
 }
 
 // ======================
-// COOLDOWN TIMER
-// ======================
-function startCooldownTimer(){
-    let timerEl = document.getElementById("timer");
-    timerEl.innerText = `Please wait ${cooldownSeconds}s before getting a new key`;
-    let interval = setInterval(() => {
-        cooldownSeconds--;
-        if(cooldownSeconds <= 0){
-            clearInterval(interval);
-            timerEl.innerText = "";
-            cooldownSeconds = 0;
-        } else {
-            timerEl.innerText = `Please wait ${cooldownSeconds}s before getting a new key`;
-        }
-    }, 1000);
-}
-
-// ======================
-// COPY KEY FUNCTION
+// COPY KEY
 // ======================
 function copyKey(){
     let key = document.getElementById("key").innerText;
@@ -128,12 +103,12 @@ function copyKey(){
 // PREVENT BACK BUTTON
 // ======================
 history.pushState(null,null,location.href);
-window.onpopstate = function(){ history.go(1); }
+window.onpopstate=function(){
+history.go(1);
+};
 
-// ======================
-// LOAD KEY ON PAGE LOAD
-// ======================
 window.onload = loadKey;
+
 </script>
 
 </body>
