@@ -3,113 +3,148 @@
 <head>
 <meta charset="UTF-8">
 <title>Kaze Key System</title>
+
 <style>
-body {
-    background:#0b0f16;
-    color:white;
-    font-family:sans-serif;
-    text-align:center;
-    margin-top:100px;
+body{
+background:#0b0f16;
+color:white;
+font-family:sans-serif;
+text-align:center;
+margin-top:100px;
 }
-h2 { font-size:32px; letter-spacing:1px; }
-#key { font-size:26px; font-weight:bold; margin-top:40px; }
-button {
-    padding:16px 50px;
-    font-size:20px;
-    background:#00ffd5;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-    color:#000;
-    font-weight:bold;
-    box-shadow:0 0 15px rgba(0,255,213,0.5);
-    transition:0.2s;
+
+h2{
+font-size:32px;
+letter-spacing:1px;
 }
-button:hover { transform:scale(1.05); }
-#timer { margin-top:20px; font-size:18px; color:#ff5555; }
+
+#key{
+font-size:26px;
+font-weight:bold;
+margin-top:40px;
+}
+
+button{
+padding:16px 50px;
+font-size:20px;
+background:#00ffd5;
+border:none;
+border-radius:12px;
+cursor:pointer;
+color:#000;
+font-weight:bold;
+box-shadow:0 0 15px rgba(0,255,213,0.5);
+transition:0.2s;
+}
+
+button:hover{
+transform:scale(1.05);
+}
 </style>
+
 </head>
+
 <body>
 
 <h2>KAZE LICENSE KEY</h2>
 
 <div id="key">Loading key...</div>
-<div id="timer"></div>
-<br>
+
+<br><br>
+
 <button onclick="copyKey()">COPY KEY</button>
 
 <script>
 
 // ======================
-// REQUIRE WORKINK REFERRER
+// CHECK REFERRER
 // ======================
 let ref = document.referrer;
 
-if(!ref.includes("gplinks") && !ref.includes("work.ink")){
-    window.location.href = "https://gplinks.co/Kaze-DailyGetFreeKey";
+if(!ref || (!ref.includes("gplinks") && !ref.includes("work.ink"))){
+window.location.href = "https://gplinks.co/Kaze-DailyGetFreeKey";
 }
 
+
 // ======================
-// PREVENT REFRESH SPAM
+// BLOCK MULTIPLE KEYS
 // ======================
-if(sessionStorage.getItem("generated")){
-    window.location.href = "https://gplinks.co/Kaze-DailyGetFreeKey";
+if(localStorage.getItem("kaze_key_used")){
+window.location.href = "https://gplinks.co/Kaze-DailyGetFreeKey";
 }
+
 
 // ======================
 // LOAD KEY
 // ======================
 async function loadKey(){
-    try{
 
-        document.getElementById("key").innerText = "Loading key...";
+try{
 
-        // GET TOKEN
-        let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
-        let token = await tokenRes.text();
+document.getElementById("key").innerText="Loading key...";
 
-        if(token.includes("Wait") || token.includes("Cooldown")){
-            document.getElementById("key").innerText = token;
-            return;
-        }
+let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
+let token = await tokenRes.text();
 
-        // GET KEY
-        let keyRes = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
-        let data = await keyRes.json();
-
-        if(data.status !== "success"){
-            document.getElementById("key").innerText = data.message;
-            return;
-        }
-
-        // MARK GENERATED (ANTI REFRESH)
-        sessionStorage.setItem("generated","true");
-
-        document.getElementById("key").innerText = data.key;
-
-    }catch(e){
-        document.getElementById("key").innerText = "SERVER ERROR";
-    }
+if(token.includes("Wait") || token.includes("Cooldown")){
+document.getElementById("key").innerText=token;
+return;
 }
+
+let keyRes = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+token);
+let data = await keyRes.json();
+
+if(data.status !== "success"){
+document.getElementById("key").innerText=data.message;
+return;
+}
+
+// mark browser used
+localStorage.setItem("kaze_key_used","true");
+
+document.getElementById("key").innerText=data.key;
+
+}catch(e){
+
+document.getElementById("key").innerText="SERVER ERROR";
+
+}
+
+}
+
 
 // ======================
 // COPY KEY
 // ======================
 function copyKey(){
-    let key = document.getElementById("key").innerText;
-    navigator.clipboard.writeText(key);
-    alert("Key copied!");
+
+let key=document.getElementById("key").innerText;
+
+navigator.clipboard.writeText(key);
+
+alert("Key copied!");
+
+// redirect after copy
+window.location.href="https://gplinks.co/Kaze-DailyGetFreeKey";
+
 }
 
+
 // ======================
-// PREVENT BACK BUTTON
+// BLOCK BACK BUTTON
 // ======================
 history.pushState(null,null,location.href);
-window.onpopstate=function(){
-history.go(1);
-};
 
-window.onload = loadKey;
+window.addEventListener("popstate",function(){
+
+history.pushState(null,null,location.href);
+
+});
+
+
+// ======================
+window.onload=loadKey;
+// ======================
 
 </script>
 
