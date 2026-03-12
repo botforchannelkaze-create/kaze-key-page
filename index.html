@@ -5,57 +5,55 @@
 
 <script>
 
-// ======================
-// BLOCK REFRESH
-// ======================
-if(sessionStorage.getItem("kazeVisited")){
-  document.body.innerHTML = "Please go to main link: https://gplinks.co/Kaze-DailyGetFreeKey";
-  throw new Error("Refresh blocked");
-}
+let sessionToken = "";
 
-sessionStorage.setItem("kazeVisited","true");
-
-
-// ======================
-// GPLINKS CHECK
-// ======================
+// BLOCK DIRECT ACCESS
 if(document.referrer.indexOf("gplinks.co") === -1){
-  document.body.innerHTML = "Please go to main link: https://gplinks.co/Kaze-DailyGetFreeKey";
-  throw new Error("Access denied");
+  document.addEventListener("DOMContentLoaded",function(){
+    document.getElementById("key").innerText =
+    "Please go to main link:\nhttps://gplinks.co/Kaze-DailyGetFreeKey";
+  });
 }
+
+// BLOCK REFRESH
+if(sessionStorage.getItem("kazeUsed")){
+  document.addEventListener("DOMContentLoaded",function(){
+    document.getElementById("key").innerText =
+    "Please go to main link:\nhttps://gplinks.co/Kaze-DailyGetFreeKey";
+  });
+}
+
+sessionStorage.setItem("kazeUsed","true");
 
 
 // ======================
 // LOAD KEY
 // ======================
-let sessionToken = "";
-
 async function loadKey(){
 
   try{
 
-    // STEP 1: GET SESSION TOKEN
-    let t = await fetch("https://codm-injector-panel.onrender.com/session");
+    let t = await fetch("https://codm-injector-panel.onrender.com/token");
     sessionToken = await t.text();
 
     if(
-      sessionToken.includes("Access") ||
+      !sessionToken ||
       sessionToken.includes("Please") ||
-      sessionToken.includes("Wait")
+      sessionToken.includes("Access") ||
+      sessionToken.includes("wait")
     ){
-      document.getElementById("key").innerText = sessionToken;
+      document.getElementById("key").innerText =
+      "Please go to main link:\nhttps://gplinks.co/Kaze-DailyGetFreeKey";
       return;
     }
 
-
-    // STEP 2: GET KEY USING TOKEN
     let k = await fetch(
       "https://codm-injector-panel.onrender.com/getkey?token="+sessionToken
     );
 
     let key = await k.text();
 
-    if(key.includes("Access") || key.includes("Session")){
+    if(!key || key.includes("Access") || key.includes("Token")){
       document.getElementById("key").innerText = key;
       return;
     }
@@ -68,8 +66,8 @@ async function loadKey(){
 
   catch(err){
 
-    document.getElementById("key").innerText = "ERROR LOADING KEY";
-    console.log(err);
+    document.getElementById("key").innerText =
+    "Please go to main link:\nhttps://gplinks.co/Kaze-DailyGetFreeKey";
 
   }
 
@@ -86,7 +84,6 @@ function copyKey(){
   if(
     !key ||
     key === "Loading key..." ||
-    key.includes("Access") ||
     key.includes("Please")
   ){
     alert("No valid key to copy");
@@ -99,15 +96,12 @@ function copyKey(){
 }
 
 
-// ======================
 // START
-// ======================
 window.onload = loadKey;
 
 </script>
 
 </head>
-
 
 <body style="
 text-align:center;
