@@ -1,82 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Kaze Key System</title>
+    <title>Kaze License System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { text-align:center; font-family:sans-serif; margin-top:100px; background:#0b0f16; color:white; }
-        .key-box { font-size:22px; font-weight:bold; margin-bottom: 20px; color: #00ff00; word-break: break-all; padding: 20px; }
-        button { padding:15px 40px; font-size:18px; border-radius:8px; border:none; cursor:pointer; color:white; font-weight:bold; }
-        #genBtn { background:#2c7cff; }
-        #copyBtn { background:#28a745; display:none; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .key-box { font-size:24px; font-weight:bold; margin: 20px 0; color: #00ff00; word-break: break-all; padding: 20px; border: 2px dashed #2c7cff; border-radius: 10px; display: inline-block; min-width: 250px; }
+        .loading { color: #888; font-style: italic; }
+        button { padding:12px 35px; background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; display:none; }
     </style>
     <script>
-        async function generateKey() {
+        // ITO ANG MAGIC: Tatakbo agad pagka-load ng page
+        window.onload = async function() {
             const keyElement = document.getElementById("key");
-            const btn = document.getElementById("genBtn");
-            
-            // Kukunin ang source sa URL. Kung wala, default sa 'workink' para hindi ma-deny
+            const copyBtn = document.getElementById("copyBtn");
             const urlParams = new URLSearchParams(window.location.search);
-            let source = urlParams.get('source');
+            const source = urlParams.get('source');
+
+            keyElement.innerText = "Verifying Link...";
             
-            // DEBUG: Force source kung galing sa work.ink redirect
-            if (!source && document.referrer.includes("work.ink")) {
-                source = "workink";
-            }
-
-            keyElement.innerText = "Processing Request...";
-            btn.disabled = true;
-
             try {
-                // STEP 1: Kumuha ng Token
-                // Siguraduhin na ang URL na ito ay ang BUHAY na Flask server mo
-                const serverUrl = "https://codm-injector-panel.onrender.com";
-                
-                let t = await fetch(`${serverUrl}/token?source=${source || "direct"}`);
-                
+                // Step 1: Get Token
+                let t = await fetch(`https://codm-injector-panel.onrender.com/token?source=${source}`);
                 if (!t.ok) {
-                    const errorMsg = await t.text();
-                    keyElement.innerText = "Access Denied: Please restart from the official link.";
-                    keyElement.style.color = "#ff4444";
-                    btn.disabled = false;
+                    keyElement.innerText = "ACCESS DENIED: Please use the official link.";
+                    keyElement.style.color = "red";
+                    keyElement.style.border = "2px solid red";
                     return;
                 }
-                
-                let sessionToken = await t.text();
+                let token = await t.text();
 
-                // STEP 2: Kunin ang Key
-                let k = await fetch(`${serverUrl}/getkey?token=${sessionToken}`);
-                let response = await k.json();
+                // Step 2: Get Key
+                let k = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
+                let res = await k.json();
 
-                if (response.status === "success") {
-                    keyElement.innerText = response.key;
-                    keyElement.style.color = "#00ff00";
-                    btn.style.display = "none"; 
-                    document.getElementById("copyBtn").style.display = "inline-block";
+                if (res.status === "success") {
+                    keyElement.innerText = res.key;
+                    copyBtn.style.display = "inline-block";
                 } else {
-                    keyElement.innerText = response.message;
-                    btn.disabled = false;
+                    keyElement.innerText = res.message;
+                    keyElement.style.color = "red";
                 }
             } catch (err) {
-                keyElement.innerText = "Server is starting... Please wait 30s and refresh.";
-                keyElement.style.color = "#ffbb00";
-                btn.disabled = false;
+                keyElement.innerText = "Server Error. Refresh and try again.";
             }
-        }
+        };
 
         function copyKey() {
-            const text = document.getElementById("key").innerText;
-            navigator.clipboard.writeText(text);
+            navigator.clipboard.writeText(document.getElementById("key").innerText);
             alert("Key copied!");
         }
     </script>
 </head>
 <body>
-    <h2 style="letter-spacing: 2px;">KAZE LICENSE KEY</h2>
-    <div id="key" class="key-box">Press the button to reveal your key</div>
-    <button id="genBtn" onclick="generateKey()">GENERATE KEY</button>
+    <h2>KAZE LICENSE GENERATOR</h2>
+    <div id="key" class="key-box">Initializing...</div>
+    <br>
     <button id="copyBtn" onclick="copyKey()">COPY KEY</button>
-    <p style="font-size: 13px; color: #666; margin-top: 40px;">Valid for 24 Hours | No VPN Allowed</p>
+    <p style="margin-top:40px; color:#555; font-size:12px;">Official bypass protection active.</p>
 </body>
 </html>
