@@ -4,58 +4,137 @@
 <meta charset="UTF-8">
 <title>Kaze Key System</title>
 <style>
-body {background:#0b0f16;color:white;font-family:sans-serif;text-align:center;margin-top:120px;}
-h2 {font-size:34px;margin-bottom:30px;letter-spacing:2px;}
-#key {font-size:28px;font-weight:bold;margin-top:40px;background:#111827;padding:20px;border-radius:12px;min-width:300px;display:inline-block;box-shadow:0 0 20px rgba(0,255,213,0.2);}
-button {padding:18px 60px;font-size:20px;border:none;border-radius:14px;cursor:pointer;margin:10px;transition:0.2s;}
-.copybtn {background:#00ffd5;color:#000;font-weight:bold;box-shadow:0 0 15px rgba(0,255,213,0.5);}
-.copybtn:hover {transform:scale(1.05);}
-.loading {animation:blink 1s infinite;}
-@keyframes blink {0% {opacity:1} 50% {opacity:0.3} 100% {opacity:1}}
+body {
+    background:#0b0f16;
+    color:white;
+    font-family:sans-serif;
+    text-align:center;
+    margin-top:100px;
+}
+h2 { font-size:32px; letter-spacing:1px; }
+#key { font-size:26px; font-weight:bold; margin-top:40px; }
+button {
+    padding:16px 50px;
+    font-size:20px;
+    background:#00ffd5;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    color:#000;
+    font-weight:bold;
+    box-shadow:0 0 15px rgba(0,255,213,0.5);
+    transition:0.2s;
+}
+button:hover { transform:scale(1.05); }
+#timer { margin-top:20px; font-size:18px; color:#ff5555; }
 </style>
-<script>
-// BLOCK DIRECT OPEN
-if(!document.referrer.includes("work.ink")){document.write("Access denied please go to main link");throw new Error("blocked");}
-// BLOCK BACK / REFRESH
-if(localStorage.getItem("key_generated")){document.write("Access denied please go to main link");throw new Error("already used");}
+</head>
+<body>
 
-// LOAD KEY
-async function loadKey(){
-    const keyBox = document.getElementById("key");
-    keyBox.innerText = "Loading key...";
-    keyBox.classList.add("loading");
-    try{
-        let tokenRequest = await fetch("https://codm-injector-panel.onrender.com/token");
-        let token = await tokenRequest.text();
-        if(token.includes("Access denied") || token.includes("Cooldown")){keyBox.innerText = token;keyBox.classList.remove("loading");return;}
-        let keyRequest = await fetch("https://codm-injector-panel.onrender.com/getkey?token=" + token);
-        let data = await keyRequest.json();
-        if(data.status !== "success"){keyBox.innerText = data.message;keyBox.classList.remove("loading");return;}
-        localStorage.setItem("key_generated","true");
-        keyBox.innerText = data.key;
-        keyBox.classList.remove("loading");
-    }catch(e){keyBox.innerText="SERVER ERROR";keyBox.classList.remove("loading");}
+<h2>KAZE LICENSE KEY</h2>
+
+<div id="key">Loading key...</div>
+<div id="timer"></div>
+<br>
+<button onclick="copyKey()">COPY KEY</button>
+
+<script>
+// ======================
+// REFERRER CHECK
+// ======================
+if(!document.referrer.includes("work.ink")){
+    document.getElementById("key").innerText = "Access denied, go to main link";
+    throw new Error("blocked");
 }
 
-// COPY KEY
+// ======================
+// COOLDOWN TIMER VARIABLES
+// ======================
+let cooldownSeconds = 0;
+
+// ======================
+// LOAD KEY FUNCTION
+// ======================
+async function loadKey(){
+    try{
+        // check if still in cooldown
+        if(cooldownSeconds > 0){
+            document.getElementById("timer").innerText = 
+                `Please wait ${cooldownSeconds}s before getting a new key`;
+            return;
+        }
+
+        document.getElementById("key").innerText = "Loading key...";
+
+        // GET TOKEN
+        let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
+        let token = await tokenRes.text();
+
+        if(token.includes("Access denied") || token.includes("Cooldown")){
+            document.getElementById("key").innerText = token;
+            return;
+        }
+
+        // GET KEY
+        let keyRes = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
+        let data = await keyRes.json();
+
+        if(data.status !== "success"){
+            document.getElementById("key").innerText = data.message;
+            return;
+        }
+
+        // show key
+        document.getElementById("key").innerText = data.key;
+
+        // start cooldown (KEY_LIMIT)
+        cooldownSeconds = 60; // 60 sec before next key
+        startCooldownTimer();
+
+    }catch(err){
+        console.log(err);
+        document.getElementById("key").innerText = "SERVER ERROR";
+    }
+}
+
+// ======================
+// COOLDOWN TIMER
+// ======================
+function startCooldownTimer(){
+    let timerEl = document.getElementById("timer");
+    timerEl.innerText = `Please wait ${cooldownSeconds}s before getting a new key`;
+    let interval = setInterval(() => {
+        cooldownSeconds--;
+        if(cooldownSeconds <= 0){
+            clearInterval(interval);
+            timerEl.innerText = "";
+            cooldownSeconds = 0;
+        } else {
+            timerEl.innerText = `Please wait ${cooldownSeconds}s before getting a new key`;
+        }
+    }, 1000);
+}
+
+// ======================
+// COPY KEY FUNCTION
+// ======================
 function copyKey(){
     let key = document.getElementById("key").innerText;
     navigator.clipboard.writeText(key);
     alert("Key copied!");
-    window.location.href="https://google.com";
 }
 
+// ======================
 // PREVENT BACK BUTTON
+// ======================
 history.pushState(null,null,location.href);
-window.onpopstate=function(){history.go(1);};
+window.onpopstate = function(){ history.go(1); }
 
+// ======================
+// LOAD KEY ON PAGE LOAD
+// ======================
 window.onload = loadKey;
 </script>
-</head>
-<body>
-<h2>KAZE LICENSE KEY</h2>
-<div id="key" class="loading">Loading key...</div>
-<br><br>
-<button onclick="copyKey()" class="copybtn">COPY KEY</button>
+
 </body>
 </html>
