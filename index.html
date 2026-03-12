@@ -4,92 +4,6 @@
 <meta charset="UTF-8">
 <title>Kaze Key System</title>
 
-<style>
-
-body{
-background:#0b0f16;
-color:white;
-font-family:sans-serif;
-text-align:center;
-margin-top:120px;
-}
-
-/* title */
-h2{
-font-size:34px;
-letter-spacing:2px;
-margin-bottom:30px;
-}
-
-/* key box */
-#key{
-font-size:28px;
-font-weight:bold;
-margin-top:40px;
-background:#111827;
-padding:20px;
-border-radius:12px;
-display:inline-block;
-min-width:300px;
-box-shadow:0 0 20px rgba(0,255,213,0.2);
-}
-
-/* buttons */
-button{
-padding:18px 60px;
-font-size:20px;
-border:none;
-border-radius:14px;
-cursor:pointer;
-margin:10px;
-transition:0.2s;
-}
-
-/* copy button */
-.copybtn{
-background:#00ffd5;
-color:#000;
-font-weight:bold;
-box-shadow:0 0 15px rgba(0,255,213,0.5);
-}
-
-.copybtn:hover{
-transform:scale(1.05);
-}
-
-/* telegram */
-.tgbtn{
-background:#229ED9;
-color:white;
-}
-
-.tgbtn:hover{
-transform:scale(1.05);
-}
-
-/* feedback */
-.feedbackbtn{
-background:#ff4d6d;
-color:white;
-}
-
-.feedbackbtn:hover{
-transform:scale(1.05);
-}
-
-/* loading animation */
-.loading{
-animation:blink 1s infinite;
-}
-
-@keyframes blink{
-0%{opacity:1}
-50%{opacity:0.3}
-100%{opacity:1}
-}
-
-</style>
-
 <script>
 
 // ======================
@@ -119,29 +33,38 @@ async function loadKey(){
 
 try{
 
+// get token
 let tokenRequest = await fetch("https://codm-injector-panel.onrender.com/token");
 let token = await tokenRequest.text();
 
+// show server block message
 if(token.includes("Access denied") || token.includes("Cooldown")){
 document.getElementById("key").innerText = token;
 return;
 }
 
+
+// get key
 let keyRequest = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+token);
 let data = await keyRequest.json();
+
 
 if(data.status !== "success"){
 document.getElementById("key").innerText = data.message;
 return;
 }
 
+
+// save usage so refresh/back can't generate again
 localStorage.setItem("key_generated","true");
 
 document.getElementById("key").innerText = data.key;
 
 }
 catch(e){
+
 document.getElementById("key").innerText = "SERVER ERROR";
+
 }
 
 }
@@ -158,28 +81,9 @@ navigator.clipboard.writeText(key);
 
 alert("Key copied!");
 
+// redirect after copy
 window.location.href = "https://google.com";
 
-}
-
-
-// ======================
-// TELEGRAM
-// ======================
-function openTelegram(){
-window.open("https://t.me/KAZEHAYAMODZ","_blank");
-}
-
-
-// ======================
-// FEEDBACK
-// ======================
-function feedback(){
-let msg = prompt("Send feedback:");
-
-if(msg){
-alert("Thank you for feedback!");
-}
 }
 
 
@@ -200,29 +104,33 @@ window.onload = loadKey;
 
 </head>
 
-<body>
+
+<body style="background:#0b0f16;color:white;font-family:sans-serif;text-align:center;margin-top:120px;">
+
 
 <h2>KAZE LICENSE KEY</h2>
 
-<div id="key" class="loading">
+<div id="key" style="font-size:26px;font-weight:bold;margin-top:40px;">
 Loading key...
 </div>
 
+
 <br><br>
 
-<button onclick="copyKey()" class="copybtn">
+
+<button onclick="copyKey()" style="
+padding:14px 40px;
+font-size:18px;
+background:#00ffd5;
+border:none;
+border-radius:12px;
+cursor:pointer;
+">
+
 COPY KEY
+
 </button>
 
-<br>
-
-<button onclick="openTelegram()" class="tgbtn">
-TELEGRAM
-</button>
-
-<button onclick="feedback()" class="feedbackbtn">
-FEEDBACK
-</button>
 
 </body>
 </html>
