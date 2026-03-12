@@ -1,143 +1,228 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Kaze Key Injector</title>
+<meta charset="UTF-8">
+<title>Kaze Key System</title>
+
 <style>
-body {
-    font-family: sans-serif;
-    background: #0b0f16;
-    color: white;
-    text-align: center;
-    margin-top: 80px;
+
+body{
+background:#0b0f16;
+color:white;
+font-family:sans-serif;
+text-align:center;
+margin-top:120px;
 }
-h2 { margin-bottom: 20px; }
-#key { font-size: 28px; font-weight: bold; margin: 20px; }
-button {
-    padding: 20px 50px;
-    font-size: 22px;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
+
+/* title */
+h2{
+font-size:34px;
+letter-spacing:2px;
+margin-bottom:30px;
 }
-#copyBtn { background: #00ffd5; color: #000; }
-#telegramBtn { background: #0088cc; color: white; margin: 10px; }
-#feedbackBtn { background: #ff6f61; color: white; margin: 10px; }
-#countdown { font-size: 18px; margin-top: 10px; color: #ffd700; }
+
+/* key box */
+#key{
+font-size:28px;
+font-weight:bold;
+margin-top:40px;
+background:#111827;
+padding:20px;
+border-radius:12px;
+display:inline-block;
+min-width:300px;
+box-shadow:0 0 20px rgba(0,255,213,0.2);
+}
+
+/* buttons */
+button{
+padding:18px 60px;
+font-size:20px;
+border:none;
+border-radius:14px;
+cursor:pointer;
+margin:10px;
+transition:0.2s;
+}
+
+/* copy button */
+.copybtn{
+background:#00ffd5;
+color:#000;
+font-weight:bold;
+box-shadow:0 0 15px rgba(0,255,213,0.5);
+}
+
+.copybtn:hover{
+transform:scale(1.05);
+}
+
+/* telegram */
+.tgbtn{
+background:#229ED9;
+color:white;
+}
+
+.tgbtn:hover{
+transform:scale(1.05);
+}
+
+/* feedback */
+.feedbackbtn{
+background:#ff4d6d;
+color:white;
+}
+
+.feedbackbtn:hover{
+transform:scale(1.05);
+}
+
+/* loading animation */
+.loading{
+animation:blink 1s infinite;
+}
+
+@keyframes blink{
+0%{opacity:1}
+50%{opacity:0.3}
+100%{opacity:1}
+}
+
 </style>
-</head>
-<body>
-
-<h2>KAZE LICENSE KEY</h2>
-<div id="key">Loading key...</div>
-<div id="countdown"></div>
-
-<button id="copyBtn">COPY KEY</button><br>
-<button id="telegramBtn">Open Telegram</button>
-<button id="feedbackBtn">Send Feedback</button>
 
 <script>
+
 // ======================
-// Anti Refresh / Back
+// BLOCK DIRECT OPEN
 // ======================
-if(sessionStorage.getItem("key_used")){
-    document.getElementById("key").innerText = "Key already generated. Please go back to main link.";
-    throw new Error("already used");
+let ref = document.referrer;
+
+if(!ref.includes("work.ink")){
+document.write("Access denied please go to main link");
+throw new Error("blocked");
 }
 
-// ======================
-// Config
-// ======================
-const TOKEN_URL = "https://codm-injector-panel.onrender.com/token";
-const GETKEY_URL = "https://codm-injector-panel.onrender.com/getkey?token=";
-const TELEGRAM_LINK = "https://t.me/KAZEHAYAMODZ"; // change to your link
-
-let cooldown = 0;
 
 // ======================
-// Load Key
+// BLOCK BACK / REFRESH
+// ======================
+if(localStorage.getItem("key_generated")){
+document.write("Access denied please go to main link");
+throw new Error("already used");
+}
+
+
+// ======================
+// LOAD KEY
 // ======================
 async function loadKey(){
-    try {
-        let t = await fetch(TOKEN_URL);
-        let token = await t.text();
 
-        if(token.includes("denied") || token.includes("wait")){
-            document.getElementById("key").innerText = token;
-            return;
-        }
+try{
 
-        let k = await fetch(GETKEY_URL + token);
-        let keyJson = await k.json();
+let tokenRequest = await fetch("https://codm-injector-panel.onrender.com/token");
+let token = await tokenRequest.text();
 
-        if(keyJson.status === "error"){
-            document.getElementById("key").innerText = keyJson.message;
-            return;
-        }
-
-        sessionStorage.setItem("key_used","true");
-        document.getElementById("key").innerText = keyJson.key;
-
-        // Start countdown for KEY_EXPIRY (60s example)
-        cooldown = 60;
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
-
-    } catch {
-        document.getElementById("key").innerText = "ERROR LOADING KEY";
-    }
+if(token.includes("Access denied") || token.includes("Cooldown")){
+document.getElementById("key").innerText = token;
+return;
 }
 
-// ======================
-// Countdown Timer
-// ======================
-function updateCountdown(){
-    if(cooldown > 0){
-        document.getElementById("countdown").innerText = "Next key available in: " + cooldown + "s";
-        cooldown--;
-    } else {
-        document.getElementById("countdown").innerText = "";
-    }
+let keyRequest = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+token);
+let data = await keyRequest.json();
+
+if(data.status !== "success"){
+document.getElementById("key").innerText = data.message;
+return;
 }
+
+localStorage.setItem("key_generated","true");
+
+document.getElementById("key").innerText = data.key;
+
+}
+catch(e){
+document.getElementById("key").innerText = "SERVER ERROR";
+}
+
+}
+
 
 // ======================
 // COPY KEY
 // ======================
-document.getElementById("copyBtn").addEventListener("click", ()=>{
-    const key = document.getElementById("key").innerText;
-    if(key && !key.includes("Loading") && !key.includes("denied")){
-        navigator.clipboard.writeText(key);
-        alert("Key copied!");
-    }
-});
+function copyKey(){
+
+let key = document.getElementById("key").innerText;
+
+navigator.clipboard.writeText(key);
+
+alert("Key copied!");
+
+window.location.href = "https://google.com";
+
+}
+
 
 // ======================
-// Telegram Button
+// TELEGRAM
 // ======================
-document.getElementById("telegramBtn").addEventListener("click", ()=>{
-    window.open(TELEGRAM_LINK, "_blank");
-});
+function openTelegram(){
+window.open("https://t.me/KAZEHAYAMODZ","_blank");
+}
+
 
 // ======================
-// Feedback Button
+// FEEDBACK
 // ======================
-document.getElementById("feedbackBtn").addEventListener("click", ()=>{
-    const messages = [
-        "Great injector! 👍",
-        "Found a bug 😅",
-        "Request new feature 💡",
-        "Feedback: "
-    ];
-    const choice = prompt("Choose feedback:\n1. Great injector\n2. Found a bug\n3. Request feature\n4. Other");
-    if(choice && messages[parseInt(choice)-1]){
-        alert("Your feedback: " + messages[parseInt(choice)-1]);
-    } else {
-        alert("Invalid choice");
-    }
-});
+function feedback(){
+let msg = prompt("Send feedback:");
+
+if(msg){
+alert("Thank you for feedback!");
+}
+}
+
+
+// ======================
+// PREVENT BACK BUTTON
+// ======================
+history.pushState(null,null,location.href);
+window.onpopstate=function(){
+history.go(1);
+};
+
 
 // ======================
 window.onload = loadKey;
+// ======================
+
 </script>
+
+</head>
+
+<body>
+
+<h2>KAZE LICENSE KEY</h2>
+
+<div id="key" class="loading">
+Loading key...
+</div>
+
+<br><br>
+
+<button onclick="copyKey()" class="copybtn">
+COPY KEY
+</button>
+
+<br>
+
+<button onclick="openTelegram()" class="tgbtn">
+TELEGRAM
+</button>
+
+<button onclick="feedback()" class="feedbackbtn">
+FEEDBACK
+</button>
 
 </body>
 </html>
