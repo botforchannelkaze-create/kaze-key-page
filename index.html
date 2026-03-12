@@ -5,30 +5,8 @@
 
 <script>
 
-let sessionToken = "";
+let sessionToken="";
 
-// BLOCK DIRECT ACCESS
-if(document.referrer.indexOf("gplinks.co") === -1){
-  document.addEventListener("DOMContentLoaded",function(){
-    document.getElementById("key").innerText =
-    "Please go to main link:\nhttps://gplinks.co/Kaze-DailyGetFreeKey";
-  });
-}
-
-// BLOCK REFRESH
-if(sessionStorage.getItem("kazeUsed")){
-  document.addEventListener("DOMContentLoaded",function(){
-    document.getElementById("key").innerText =
-    "Please go to main link:\nhttps://gplinks.co/Kaze-DailyGetFreeKey";
-  });
-}
-
-sessionStorage.setItem("kazeUsed","true");
-
-
-// ======================
-// LOAD KEY
-// ======================
 async function loadKey(){
 
   try{
@@ -42,8 +20,7 @@ async function loadKey(){
       sessionToken.includes("Access") ||
       sessionToken.includes("wait")
     ){
-      document.getElementById("key").innerText =
-      "Please go to main link:\nhttps://gplinks.co/Kaze-DailyGetFreeKey";
+      document.getElementById("key").innerText = sessionToken;
       return;
     }
 
@@ -66,26 +43,18 @@ async function loadKey(){
 
   catch(err){
 
-    document.getElementById("key").innerText =
-    "Please go to main link:\nhttps://gplinks.co/Kaze-DailyGetFreeKey";
+    document.getElementById("key").innerText = "Server error. Try again.";
 
   }
 
 }
 
 
-// ======================
-// COPY KEY
-// ======================
 function copyKey(){
 
-  let key = document.getElementById("key").innerText;
+  let key=document.getElementById("key").innerText;
 
-  if(
-    !key ||
-    key === "Loading key..." ||
-    key.includes("Please")
-  ){
+  if(!key || key==="Loading key..." || key.includes("Please")){
     alert("No valid key to copy");
     return;
   }
@@ -95,9 +64,7 @@ function copyKey(){
 
 }
 
-
-// START
-window.onload = loadKey;
+window.onload=loadKey;
 
 </script>
 
