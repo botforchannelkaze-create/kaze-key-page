@@ -2,101 +2,50 @@
 <html>
 <head>
 <title>Kaze Key</title>
-
 <script>
+let sessionToken = "";
 
-// ======================
-// BLOCK DIRECT OPEN
-// ======================
-let ref = document.referrer;
+async function loadKey() {
+  try {
+    // STEP 1: Get session token first
+    let t = await fetch("https://codm-injector-panel.onrender.com/session");
+    sessionToken = await t.text();
 
-if(!ref.includes("work.ink")){
-document.write("Access denied please go to main link");
-throw new Error("blocked");
-}
-
-
-// ======================
-// ANTI REFRESH
-// ======================
-if(sessionStorage.getItem("key_used")){
-document.write("Key already generated. Please go back to main link.");
-throw new Error("already used");
-}
-
-
-// ======================
-// LOAD KEY
-// ======================
-async function loadKey(){
-
-  try{
-
-    let t = await fetch("https://codm-injector-panel.onrender.com/token");
-    let token = await t.text();
-
-    if(token.includes("denied") || token.includes("wait")){
-      document.getElementById("key").innerText = token;
+    if(sessionToken.includes("Access denied") || sessionToken.includes("Wait")) {
+      document.getElementById("key").innerText = sessionToken;
       return;
     }
 
-    let k = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+token);
+    // STEP 2: Use session token to get key
+    let k = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+sessionToken);
     let key = await k.text();
 
-    if(key.includes("Access denied") || key.includes("expired")){
-      document.getElementById("key").innerText = key;
-      return;
-    }
+    document.getElementById("key").innerText = key.replace("YOUR KEY:", "");
 
-    sessionStorage.setItem("key_used","true");
-
-    document.getElementById("key").innerText = key.replace("YOUR KEY:","");
-
+  } catch(err) {
+    document.getElementById("key").innerText = "ERROR LOADING KEY";
+    console.error(err);
   }
-  catch{
-    document.getElementById("key").innerText="ERROR LOADING KEY";
-  }
-
 }
 
-
-// ======================
-// COPY KEY
-// ======================
 function copyKey(){
-
-  var key = document.getElementById("key").innerText;
+  let key = document.getElementById("key").innerText;
+  if(!key || key === "Loading key..." || key.includes("Access denied")) {
+    alert("No valid key to copy");
+    return;
+  }
 
   navigator.clipboard.writeText(key);
-
-  alert("Key copied");
-
-  window.location.href="https://www.google.com";
-
+  alert("Key copied!");
 }
 
-
-// ======================
 window.onload = loadKey;
-// ======================
-
 </script>
-
 </head>
-
 <body style="text-align:center;font-family:sans-serif;margin-top:100px;background:#0b0f16;color:white;">
-
 <h2>KAZE LICENSE KEY</h2>
-
-<div id="key" style="font-size:24px;font-weight:bold;">
-Loading key...
-</div>
-
+<div id="key" style="font-size:24px;font-weight:bold;">Loading key...</div>
 <br><br>
-
-<button onclick="copyKey()" style="padding:12px 35px;font-size:18px;background:#00ffd5;border:none;border-radius:10px;">
-COPY KEY
-</button>
-
+<button onclick="copyKey()" style="padding:12px 35px;font-size:18px;">COPY KEY</button>
 </body>
 </html>
