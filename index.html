@@ -43,7 +43,9 @@ button:hover { transform:scale(1.05); }
 // ======================
 // REQUIRE WORKINK REFERRER
 // ======================
-if(!document.referrer.includes("gplinks")){
+let ref = document.referrer;
+
+if(!ref.includes("gplinks") && !ref.includes("work.ink")){
     window.location.href = "https://gplinks.co/Kaze-DailyGetFreeKey";
 }
 
