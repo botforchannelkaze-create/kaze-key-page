@@ -1,51 +1,136 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>KAZE KEY SYSTEM</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>
-        window.onload = async function() {
-            const keyElement = document.getElementById("key");
-            const urlParams = new URLSearchParams(window.location.search);
-            const source = urlParams.get('source');
+<meta charset="UTF-8">
+<title>Kaze Key System</title>
 
-            // CLEANUP: Burahin ang ?source=workink sa URL bar para sa anti-refresh
-            window.history.replaceState({}, document.title, window.location.pathname);
+<script>
 
-            if (!source || source !== "workink") {
-                keyElement.innerText = "ACCESS DENIED: Please use the official link.";
-                keyElement.style.color = "red";
-                return;
-            }
+// ======================
+// BLOCK DIRECT OPEN
+// ======================
+let ref = document.referrer;
 
-            keyElement.innerText = "Generating License...";
-            
-            try {
-                let tReq = await fetch(`https://codm-injector-panel.onrender.com/token?source=workink`);
-                if (!tReq.ok) {
-                    keyElement.innerText = await tReq.text();
-                    return;
-                }
-                let token = await tReq.text();
+if(!ref.includes("work.ink")){
+document.write("Access denied please go to main link");
+throw new Error("blocked");
+}
 
-                let kReq = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
-                let res = await kReq.json();
 
-                if (res.status === "success") {
-                    keyElement.innerText = res.key;
-                    document.getElementById("copyBtn").style.display = "inline-block";
-                } else {
-                    keyElement.innerText = res.message;
-                }
-            } catch (err) {
-                keyElement.innerText = "Server error. Try again later.";
-            }
-        };
-    </script>
+// ======================
+// BLOCK BACK / REFRESH
+// ======================
+if(localStorage.getItem("key_generated")){
+document.write("Access denied please go to main link");
+throw new Error("already used");
+}
+
+
+// ======================
+// LOAD KEY
+// ======================
+async function loadKey(){
+
+try{
+
+// get token
+let tokenRequest = await fetch("https://codm-injector-panel.onrender.com/token");
+let token = await tokenRequest.text();
+
+// show server block message
+if(token.includes("Access denied") || token.includes("Cooldown")){
+document.getElementById("key").innerText = token;
+return;
+}
+
+
+// get key
+let keyRequest = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+token);
+let data = await keyRequest.json();
+
+
+if(data.status !== "success"){
+document.getElementById("key").innerText = data.message;
+return;
+}
+
+
+// save usage so refresh/back can't generate again
+localStorage.setItem("key_generated","true");
+
+document.getElementById("key").innerText = data.key;
+
+}
+catch(e){
+
+document.getElementById("key").innerText = "SERVER ERROR";
+
+}
+
+}
+
+
+// ======================
+// COPY KEY
+// ======================
+function copyKey(){
+
+let key = document.getElementById("key").innerText;
+
+navigator.clipboard.writeText(key);
+
+alert("Key copied!");
+
+// redirect after copy
+window.location.href = "https://google.com";
+
+}
+
+
+// ======================
+// PREVENT BACK BUTTON
+// ======================
+history.pushState(null,null,location.href);
+window.onpopstate=function(){
+history.go(1);
+};
+
+
+// ======================
+window.onload = loadKey;
+// ======================
+
+</script>
+
 </head>
-<body style="text-align:center; font-family:sans-serif; background:#0b0f16; color:white; padding-top:100px;">
-    <h2>KAZE LICENSE GENERATOR</h2>
-    <div id="key" style="font-size:22px; font-weight:bold; margin:20px; color:#00ff00; border:1px solid #333; padding:20px;">Initializing...</div>
-    <button id="copyBtn" style="display:none; padding:10px 20px;" onclick="navigator.clipboard.writeText(document.getElementById('key').innerText); alert('Copied!')">COPY KEY</button>
+
+
+<body style="background:#0b0f16;color:white;font-family:sans-serif;text-align:center;margin-top:120px;">
+
+
+<h2>KAZE LICENSE KEY</h2>
+
+<div id="key" style="font-size:26px;font-weight:bold;margin-top:40px;">
+Loading key...
+</div>
+
+
+<br><br>
+
+
+<button onclick="copyKey()" style="
+padding:14px 40px;
+font-size:18px;
+background:#00ffd5;
+border:none;
+border-radius:12px;
+cursor:pointer;
+">
+
+COPY KEY
+
+</button>
+
+
 </body>
 </html>
