@@ -1,136 +1,143 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Kaze Key System</title>
+<title>Kaze Key Injector</title>
+<style>
+body {
+    font-family: sans-serif;
+    background: #0b0f16;
+    color: white;
+    text-align: center;
+    margin-top: 80px;
+}
+h2 { margin-bottom: 20px; }
+#key { font-size: 28px; font-weight: bold; margin: 20px; }
+button {
+    padding: 20px 50px;
+    font-size: 22px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+}
+#copyBtn { background: #00ffd5; color: #000; }
+#telegramBtn { background: #0088cc; color: white; margin: 10px; }
+#feedbackBtn { background: #ff6f61; color: white; margin: 10px; }
+#countdown { font-size: 18px; margin-top: 10px; color: #ffd700; }
+</style>
+</head>
+<body>
+
+<h2>KAZE LICENSE KEY</h2>
+<div id="key">Loading key...</div>
+<div id="countdown"></div>
+
+<button id="copyBtn">COPY KEY</button><br>
+<button id="telegramBtn">Open Telegram</button>
+<button id="feedbackBtn">Send Feedback</button>
 
 <script>
-
 // ======================
-// BLOCK DIRECT OPEN
+// Anti Refresh / Back
 // ======================
-let ref = document.referrer;
-
-if(!ref.includes("work.ink")){
-document.write("Access denied please go to main link");
-throw new Error("blocked");
+if(sessionStorage.getItem("key_used")){
+    document.getElementById("key").innerText = "Key already generated. Please go back to main link.";
+    throw new Error("already used");
 }
 
+// ======================
+// Config
+// ======================
+const TOKEN_URL = "https://codm-injector-panel.onrender.com/token";
+const GETKEY_URL = "https://codm-injector-panel.onrender.com/getkey?token=";
+const TELEGRAM_LINK = "https://t.me/YourChannelOrBot"; // change to your link
+
+let cooldown = 0;
 
 // ======================
-// BLOCK BACK / REFRESH
-// ======================
-if(localStorage.getItem("key_generated")){
-document.write("Access denied please go to main link");
-throw new Error("already used");
-}
-
-
-// ======================
-// LOAD KEY
+// Load Key
 // ======================
 async function loadKey(){
+    try {
+        let t = await fetch(TOKEN_URL);
+        let token = await t.text();
 
-try{
+        if(token.includes("denied") || token.includes("wait")){
+            document.getElementById("key").innerText = token;
+            return;
+        }
 
-// get token
-let tokenRequest = await fetch("https://codm-injector-panel.onrender.com/token");
-let token = await tokenRequest.text();
+        let k = await fetch(GETKEY_URL + token);
+        let keyJson = await k.json();
 
-// show server block message
-if(token.includes("Access denied") || token.includes("Cooldown")){
-document.getElementById("key").innerText = token;
-return;
+        if(keyJson.status === "error"){
+            document.getElementById("key").innerText = keyJson.message;
+            return;
+        }
+
+        sessionStorage.setItem("key_used","true");
+        document.getElementById("key").innerText = keyJson.key;
+
+        // Start countdown for KEY_EXPIRY (60s example)
+        cooldown = 60;
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+    } catch {
+        document.getElementById("key").innerText = "ERROR LOADING KEY";
+    }
 }
 
-
-// get key
-let keyRequest = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+token);
-let data = await keyRequest.json();
-
-
-if(data.status !== "success"){
-document.getElementById("key").innerText = data.message;
-return;
+// ======================
+// Countdown Timer
+// ======================
+function updateCountdown(){
+    if(cooldown > 0){
+        document.getElementById("countdown").innerText = "Next key available in: " + cooldown + "s";
+        cooldown--;
+    } else {
+        document.getElementById("countdown").innerText = "";
+    }
 }
-
-
-// save usage so refresh/back can't generate again
-localStorage.setItem("key_generated","true");
-
-document.getElementById("key").innerText = data.key;
-
-}
-catch(e){
-
-document.getElementById("key").innerText = "SERVER ERROR";
-
-}
-
-}
-
 
 // ======================
 // COPY KEY
 // ======================
-function copyKey(){
-
-let key = document.getElementById("key").innerText;
-
-navigator.clipboard.writeText(key);
-
-alert("Key copied!");
-
-// redirect after copy
-window.location.href = "https://google.com";
-
-}
-
+document.getElementById("copyBtn").addEventListener("click", ()=>{
+    const key = document.getElementById("key").innerText;
+    if(key && !key.includes("Loading") && !key.includes("denied")){
+        navigator.clipboard.writeText(key);
+        alert("Key copied!");
+    }
+});
 
 // ======================
-// PREVENT BACK BUTTON
+// Telegram Button
 // ======================
-history.pushState(null,null,location.href);
-window.onpopstate=function(){
-history.go(1);
-};
+document.getElementById("telegramBtn").addEventListener("click", ()=>{
+    window.open(TELEGRAM_LINK, "_blank");
+});
 
+// ======================
+// Feedback Button
+// ======================
+document.getElementById("feedbackBtn").addEventListener("click", ()=>{
+    const messages = [
+        "Great injector! 👍",
+        "Found a bug 😅",
+        "Request new feature 💡",
+        "Feedback: "
+    ];
+    const choice = prompt("Choose feedback:\n1. Great injector\n2. Found a bug\n3. Request feature\n4. Other");
+    if(choice && messages[parseInt(choice)-1]){
+        alert("Your feedback: " + messages[parseInt(choice)-1]);
+    } else {
+        alert("Invalid choice");
+    }
+});
 
 // ======================
 window.onload = loadKey;
-// ======================
-
 </script>
-
-</head>
-
-
-<body style="background:#0b0f16;color:white;font-family:sans-serif;text-align:center;margin-top:120px;">
-
-
-<h2>KAZE LICENSE KEY</h2>
-
-<div id="key" style="font-size:26px;font-weight:bold;margin-top:40px;">
-Loading key...
-</div>
-
-
-<br><br>
-
-
-<button onclick="copyKey()" style="
-padding:14px 40px;
-font-size:18px;
-background:#00ffd5;
-border:none;
-border-radius:12px;
-cursor:pointer;
-">
-
-COPY KEY
-
-</button>
-
 
 </body>
 </html>
