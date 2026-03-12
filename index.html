@@ -3,31 +3,50 @@
 <head>
     <title>Kaze Key System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { text-align:center; font-family:sans-serif; margin-top:100px; background:#0b0f16; color:white; }
+        .key-box { font-size:22px; font-weight:bold; margin-bottom: 20px; color: #00ff00; word-break: break-all; padding: 20px; }
+        button { padding:15px 40px; font-size:18px; border-radius:8px; border:none; cursor:pointer; color:white; font-weight:bold; }
+        #genBtn { background:#2c7cff; }
+        #copyBtn { background:#28a745; display:none; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
     <script>
         async function generateKey() {
             const keyElement = document.getElementById("key");
             const btn = document.getElementById("genBtn");
             
-            // Kukunin ang 'source' mula sa browser URL
+            // Kukunin ang source sa URL. Kung wala, default sa 'workink' para hindi ma-deny
             const urlParams = new URLSearchParams(window.location.search);
-            const source = urlParams.get('source') || "";
+            let source = urlParams.get('source');
+            
+            // DEBUG: Force source kung galing sa work.ink redirect
+            if (!source && document.referrer.includes("work.ink")) {
+                source = "workink";
+            }
 
-            keyElement.innerText = "Generating...";
+            keyElement.innerText = "Processing Request...";
             btn.disabled = true;
 
             try {
-                // Ipapasa ang source tag sa Flask
-                let t = await fetch(`https://codm-injector-panel.onrender.com/token?source=${source}`);
+                // STEP 1: Kumuha ng Token
+                // Siguraduhin na ang URL na ito ay ang BUHAY na Flask server mo
+                const serverUrl = "https://codm-injector-panel.onrender.com";
+                
+                let t = await fetch(`${serverUrl}/token?source=${source || "direct"}`);
                 
                 if (!t.ok) {
-                    keyElement.innerText = await t.text();
-                    keyElement.style.color = "red";
+                    const errorMsg = await t.text();
+                    keyElement.innerText = "Access Denied: Please restart from the official link.";
+                    keyElement.style.color = "#ff4444";
                     btn.disabled = false;
                     return;
                 }
                 
                 let sessionToken = await t.text();
-                let k = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${sessionToken}`);
+
+                // STEP 2: Kunin ang Key
+                let k = await fetch(`${serverUrl}/getkey?token=${sessionToken}`);
                 let response = await k.json();
 
                 if (response.status === "success") {
@@ -40,21 +59,24 @@
                     btn.disabled = false;
                 }
             } catch (err) {
-                keyElement.innerText = "Server error. Try again.";
+                keyElement.innerText = "Server is starting... Please wait 30s and refresh.";
+                keyElement.style.color = "#ffbb00";
                 btn.disabled = false;
             }
         }
 
         function copyKey() {
-            navigator.clipboard.writeText(document.getElementById("key").innerText);
+            const text = document.getElementById("key").innerText;
+            navigator.clipboard.writeText(text);
             alert("Key copied!");
         }
     </script>
 </head>
-<body style="text-align:center; font-family:sans-serif; margin-top:100px; background:#0b0f16; color:white;">
-    <h2>KAZE LICENSE KEY</h2>
-    <div id="key" style="font-size:24px; font-weight:bold; margin-bottom: 20px;">Ready to generate?</div>
-    <button id="genBtn" onclick="generateKey()" style="padding:12px 35px; background:#2c7cff; color:white; border:none; border-radius:6px; cursor:pointer;">GENERATE KEY</button>
-    <button id="copyBtn" onclick="copyKey()" style="display:none; padding:12px 35px; background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer;">COPY KEY</button>
+<body>
+    <h2 style="letter-spacing: 2px;">KAZE LICENSE KEY</h2>
+    <div id="key" class="key-box">Press the button to reveal your key</div>
+    <button id="genBtn" onclick="generateKey()">GENERATE KEY</button>
+    <button id="copyBtn" onclick="copyKey()">COPY KEY</button>
+    <p style="font-size: 13px; color: #666; margin-top: 40px;">Valid for 24 Hours | No VPN Allowed</p>
 </body>
 </html>
