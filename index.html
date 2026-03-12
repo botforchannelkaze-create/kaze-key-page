@@ -2,50 +2,139 @@
 <html>
 <head>
 <title>Kaze Key</title>
+
 <script>
+
+// ======================
+// BLOCK REFRESH
+// ======================
+if(sessionStorage.getItem("kazeVisited")){
+  document.body.innerHTML = "Please go to main link: https://gplinks.co/Kaze-DailyGetFreeKey";
+  throw new Error("Refresh blocked");
+}
+
+sessionStorage.setItem("kazeVisited","true");
+
+
+// ======================
+// GPLINKS CHECK
+// ======================
+if(document.referrer.indexOf("gplinks.co") === -1){
+  document.body.innerHTML = "Please go to main link: https://gplinks.co/Kaze-DailyGetFreeKey";
+  throw new Error("Access denied");
+}
+
+
+// ======================
+// LOAD KEY
+// ======================
 let sessionToken = "";
 
-async function loadKey() {
-  try {
-    // STEP 1: Get session token first
+async function loadKey(){
+
+  try{
+
+    // STEP 1: GET SESSION TOKEN
     let t = await fetch("https://codm-injector-panel.onrender.com/session");
     sessionToken = await t.text();
 
-    if(sessionToken.includes("Access denied") || sessionToken.includes("Wait")) {
+    if(
+      sessionToken.includes("Access") ||
+      sessionToken.includes("Please") ||
+      sessionToken.includes("Wait")
+    ){
       document.getElementById("key").innerText = sessionToken;
       return;
     }
 
-    // STEP 2: Use session token to get key
-    let k = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+sessionToken);
+
+    // STEP 2: GET KEY USING TOKEN
+    let k = await fetch(
+      "https://codm-injector-panel.onrender.com/getkey?token="+sessionToken
+    );
+
     let key = await k.text();
 
-    document.getElementById("key").innerText = key.replace("YOUR KEY:", "");
+    if(key.includes("Access") || key.includes("Session")){
+      document.getElementById("key").innerText = key;
+      return;
+    }
 
-  } catch(err) {
-    document.getElementById("key").innerText = "ERROR LOADING KEY";
-    console.error(err);
+    key = key.replace("YOUR KEY:","").trim();
+
+    document.getElementById("key").innerText = key;
+
   }
+
+  catch(err){
+
+    document.getElementById("key").innerText = "ERROR LOADING KEY";
+    console.log(err);
+
+  }
+
 }
 
+
+// ======================
+// COPY KEY
+// ======================
 function copyKey(){
+
   let key = document.getElementById("key").innerText;
-  if(!key || key === "Loading key..." || key.includes("Access denied")) {
+
+  if(
+    !key ||
+    key === "Loading key..." ||
+    key.includes("Access") ||
+    key.includes("Please")
+  ){
     alert("No valid key to copy");
     return;
   }
 
   navigator.clipboard.writeText(key);
   alert("Key copied!");
+
 }
 
+
+// ======================
+// START
+// ======================
 window.onload = loadKey;
+
 </script>
+
 </head>
-<body style="text-align:center;font-family:sans-serif;margin-top:100px;background:#0b0f16;color:white;">
+
+
+<body style="
+text-align:center;
+font-family:sans-serif;
+margin-top:100px;
+background:#0b0f16;
+color:white;
+">
+
 <h2>KAZE LICENSE KEY</h2>
-<div id="key" style="font-size:24px;font-weight:bold;">Loading key...</div>
+
+<div id="key" style="font-size:24px;font-weight:bold;">
+Loading key...
+</div>
+
 <br><br>
-<button onclick="copyKey()" style="padding:12px 35px;font-size:18px;">COPY KEY</button>
+
+<button onclick="copyKey()" style="
+padding:12px 35px;
+font-size:18px;
+border-radius:6px;
+border:none;
+background:#2c7cff;
+color:white;
+">
+COPY KEY
+</button>
+
 </body>
 </html>
