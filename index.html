@@ -11,7 +11,7 @@ async function loadKey(){
 
   try{
 
-    let t = await fetch("https://codm-injector-panel.onrender.com/token");
+    let t = await fetch("https://codm-injector-panel.onrender.com/session");
     sessionToken = await t.text();
 
     if(
