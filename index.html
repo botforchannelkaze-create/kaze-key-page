@@ -142,8 +142,9 @@ button:active {
 </div>
 
 <script>
+
 // ======================
-// HINDI PINAKIALAMAN ANG LOGIC
+// PARAM CHECK
 // ======================
 
 let params = new URLSearchParams(window.location.search);
@@ -154,23 +155,43 @@ if(pass !== "1" || step !== "gplinks"){
     window.location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
+// ======================
+// REFRESH BLOCK
+// ======================
+
 if (performance.navigation.type === 1) {
     window.location.replace("https://kazehayamodz-main-page.onrender.com");
 }
+
+// ======================
+// REFERRER CHECK
+// ======================
+
+if (!document.referrer.includes("kazehayamodz-main-page.onrender.com")) {
+    window.location.replace("https://kazehayamodz-main-page.onrender.com");
+}
+
+// ======================
+// KEY SYSTEM
+// ======================
 
 let cooldownSeconds = 1000;
 
 async function loadKey(){
 try{
     document.getElementById("key").innerText="Loading key...";
+
     let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
     let token = await tokenRes.text();
+
     let keyRes = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
     let data = await keyRes.json();
+
     if(data.status !== "success"){
         document.getElementById("key").innerText=data.message;
         return;
     }
+
     document.getElementById("key").innerText=data.key;
     startCooldown();
 }
@@ -180,9 +201,13 @@ catch(e){
 }
 
 function startCooldown(){
+
     let timer=document.getElementById("timer");
+
     let interval=setInterval(()=>{
+
         cooldownSeconds--;
+
         if(cooldownSeconds<=0){
             clearInterval(interval);
             timer.innerText="Please go to the main link to generate again";
@@ -190,21 +215,33 @@ function startCooldown(){
         else{
             timer.innerText=`Please wait ${cooldownSeconds} Sec before generate again key`;
         }
+
     },1000);
 }
 
 function copyKey(){
+
     let key=document.getElementById("key").innerText;
+
     navigator.clipboard.writeText(key);
+
     window.location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
+// ======================
+// BACK BUTTON BLOCK
+// ======================
+
 history.pushState(null,null,location.href);
+
 window.onpopstate=function(){
     history.go(1);
 }
 
+// ======================
+
 window.onload=loadKey;
+
 </script>
 </body>
 </html>
