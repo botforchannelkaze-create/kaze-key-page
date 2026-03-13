@@ -133,10 +133,10 @@ if(pass !== "1" || step !== "gplinks"){
 }
 
 // ======================
-// BLOCK RETURN AFTER COPY / REFRESH
+// BLOCK RETURN AFTER COPY
 // ======================
-if(sessionStorage.getItem("generated")){
-    window.location.href = "https://kazehayamodz-main-page.onrender.com";
+if(sessionStorage.getItem("key_done")){
+    window.location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
 // ======================
@@ -204,9 +204,9 @@ function startCooldownTimer(){
 function copyKey(){
     let key = document.getElementById("key").innerText;
     navigator.clipboard.writeText(key);
-    sessionStorage.removeItem("generated");
     sessionStorage.setItem("key_done","true");
-
+    sessionStorage.removeItem("generated");
+    
     // DIRECT TO MAIN PAGE
     window.location.replace("https://kazehayamodz-main-page.onrender.com");
 }
