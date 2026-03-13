@@ -5,7 +5,6 @@
 <title>Kaze Key System</title>
 
 <style>
-
 body{
     background:#0b0f16;
     color:white;
@@ -16,41 +15,41 @@ body{
 
 /* TITLE */
 h2{
-    font-size:34px;
+    font-size:40px;
     letter-spacing:1px;
 }
 
 /* KEY BOX */
 #key{
-    font-size:24px;
+    font-size:30px;
     font-weight:bold;
-    margin-top:40px;
-    padding:18px;
-    border-radius:12px;
-    border:2px solid #00ffd5;
+    margin-top:50px;
+    padding:25px 30px;
+    border-radius:16px;
+    border:3px solid #00ffd5;
     display:inline-block;
-    min-width:260px;
+    min-width:300px;
     background:#0f1624;
-    box-shadow:0 0 15px rgba(0,255,213,0.3);
+    box-shadow:0 0 20px rgba(0,255,213,0.5);
 }
 
 /* TIMER */
 #timer{
-    margin-top:20px;
-    font-size:18px;
+    margin-top:25px;
+    font-size:20px;
     color:#ff5555;
 }
 
 /* COPY BUTTON */
 button{
-    margin-top:30px;
-    padding:18px 70px;
-    font-size:22px;
+    margin-top:40px;
+    padding:22px 90px;
+    font-size:26px;
+    font-weight:bold;
     border:none;
-    border-radius:14px;
+    border-radius:18px;
     cursor:pointer;
     color:white;
-    font-weight:bold;
     position:relative;
     overflow:hidden;
     transition:0.2s;
@@ -75,6 +74,7 @@ button::before{
     background-size:400%;
     animation:rainbow 6s linear infinite;
     z-index:0;
+    border-radius:18px;
 }
 
 button span{
@@ -88,11 +88,10 @@ button span{
 }
 
 button:hover{
-    transform:scale(1.06);
+    transform:scale(1.08);
 }
 
 </style>
-
 </head>
 <body>
 
@@ -110,23 +109,21 @@ button:hover{
 
 <script>
 // ======================
-// REQUIRE MAIN PAGE REFERRER
+// BLOCK DIRECT ACCESS / REFRESH
 // ======================
 let ref = document.referrer;
-if(!ref.includes("kazehayamodz-main-page.onrender.com") &&
-   !ref.includes("gplinks") &&
-   !ref.includes("work.ink") &&
-   !ref.includes("youtube") &&
-   !ref.includes("tiktok.com") &&
-   !ref.includes("shopee.ph")){
+if(
+    (!sessionStorage.getItem("generated")) &&
+    !ref.includes("kazehayamodz-main-page.onrender.com")
+){
     window.location.href = "https://kazehayamodz-main-page.onrender.com";
 }
 
 // ======================
-// PREVENT REFRESH SPAM
+// BLOCK RETURN AFTER COPY
 // ======================
-if(sessionStorage.getItem("generated")){
-    window.location.href = "https://kazehayamodz-main-page.onrender.com";
+if(sessionStorage.getItem("key_done")){
+    window.location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
 // ======================
@@ -157,8 +154,8 @@ async function loadKey(){
             return;
         }
 
+        // MARK GENERATED
         sessionStorage.setItem("generated","true");
-
         document.getElementById("key").innerText = data.key;
 
         cooldownSeconds = 60;
@@ -188,24 +185,16 @@ function startCooldownTimer(){
     }, 1000);
 }
 
-// BLOCK RETURN AFTER COPY
-if(sessionStorage.getItem("key_done")){
-window.location.replace("https://kazehayamodz-main-page.onrender.com");
-}
-
 // ======================
 // COPY KEY FUNCTION
 // ======================
 function copyKey(){
+    let key = document.getElementById("key").innerText;
+    navigator.clipboard.writeText(key);
+    sessionStorage.setItem("key_done","true");
 
-let key = document.getElementById("key").innerText;
-
-navigator.clipboard.writeText(key);
-
-sessionStorage.setItem("key_done","true");
-
-window.location.replace("https://kazehayamodz-main-page.onrender.com");
-
+    // DIRECT TO MAIN PAGE
+    window.location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
 // ======================
