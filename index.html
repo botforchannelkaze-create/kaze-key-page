@@ -122,8 +122,8 @@ if(pass !== "1" || step !== "gplinks"){
 // ======================
 // BLOCK RETURN AFTER COPY
 // ======================
-if(sessionStorage.getItem("key_done")){
-    window.location.replace("https://kazehayamodz-main-page.onrender.com");
+if(sessionStorage.getItem("generated")){
+    document.getElementById("key").innerText = "Please return to main page and generate again.";
 }
 
 // ======================
@@ -191,6 +191,7 @@ function startCooldownTimer(){
 function copyKey(){
     let key = document.getElementById("key").innerText;
     navigator.clipboard.writeText(key);
+    sessionStorage.removeItem("generated");
     sessionStorage.setItem("key_done","true");
 
     // DIRECT TO MAIN PAGE
