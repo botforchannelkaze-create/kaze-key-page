@@ -3,166 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <title>Kaze Key System</title>
-
 <style>
-body{
-background:#0b0f16;
-color:white;
-font-family:sans-serif;
-text-align:center;
-margin-top:100px;
+body {
+    background:#0b0f16;
+    color:white;
+    font-family:sans-serif;
+    text-align:center;
+    margin-top:100px;
 }
-
-h2{
-font-size:32px;
-letter-spacing:1px;
+h2 { font-size:32px; letter-spacing:1px; }
+#key { font-size:26px; font-weight:bold; margin-top:40px; }
+button {
+    padding:16px 50px;
+    font-size:20px;
+    background:#00ffd5;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    color:#000;
+    font-weight:bold;
+    box-shadow:0 0 15px rgba(0,255,213,0.5);
+    transition:0.2s;
 }
-
-#key{
-font-size:26px;
-font-weight:bold;
-margin-top:40px;
-}
-
-button{
-padding:16px 50px;
-font-size:20px;
-background:#00ffd5;
-border:none;
-border-radius:12px;
-cursor:pointer;
-color:#000;
-font-weight:bold;
-box-shadow:0 0 15px rgba(0,255,213,0.5);
-}
-
-#timer{
-margin-top:20px;
-color:#ff5555;
-}
+button:hover { transform:scale(1.05); }
+#timer { margin-top:20px; font-size:18px; color:#ff5555; }
 </style>
-
 </head>
-
 <body>
 
 <h2>KAZE LICENSE KEY</h2>
 
 <div id="key">Loading key...</div>
 <div id="timer"></div>
-
 <br>
 <button onclick="copyKey()">COPY KEY</button>
 
 <script>
-
 // ======================
-// REDIRECT IF DIRECT OPEN
+// REQUIRE MAIN PAGE REFERRER
 // ======================
-
 let ref = document.referrer;
-
-if(!ref){
-window.location.href="https://kazehayamodz-main-page.onrender.com";
+if(!ref.includes("kazehayamodz-main-page.onrender.com") &&
+   !ref.includes("gplinks") &&
+   !ref.includes("work.ink")){
+    // Redirect to main page if direct access
+    window.location.href = "https://kazehayamodz-main-page.onrender.com";
 }
 
-if(!ref.includes("work.ink") && !ref.includes("gplinks")){
-window.location.href="https://kazehayamodz-main-page.onrender.com";
+// ======================
+// PREVENT REFRESH SPAM
+// ======================
+if(sessionStorage.getItem("generated")){
+    window.location.href = "https://kazehayamodz-main-page.onrender.com";
 }
 
+// ======================
+// COOLDOWN VARIABLES
+// ======================
+let cooldownSeconds = 0;
 
 // ======================
-// 1 MINUTE COOLDOWN
+// LOAD KEY FUNCTION
 // ======================
-
-let cooldown = 60000;
-let last = localStorage.getItem("kaze_last_key");
-
-if(last){
-
-let diff = Date.now() - last;
-
-if(diff < cooldown){
-
-let remain = Math.ceil((cooldown-diff)/1000);
-
-document.getElementById("key").innerText="Cooldown active";
-document.getElementById("timer").innerText="Wait "+remain+" seconds";
-
-throw new Error("cooldown");
-
-}
-
-}
-
-
-// ======================
-// LOAD KEY
-// ======================
-
 async function loadKey(){
+    try{
+        document.getElementById("key").innerText = "Loading key...";
 
-try{
+        // GET TOKEN
+        let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
+        let token = await tokenRes.text();
 
-document.getElementById("key").innerText="Loading key...";
+        if(token.includes("Wait") || token.includes("Cooldown")){
+            document.getElementById("key").innerText = token;
+            return;
+        }
 
-let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
-let token = await tokenRes.text();
+        // GET KEY
+        let keyRes = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
+        let data = await keyRes.json();
 
-if(token.includes("Wait") || token.includes("Cooldown")){
-document.getElementById("key").innerText = token;
-return;
+        if(data.status !== "success"){
+            document.getElementById("key").innerText = data.message;
+            return;
+        }
+
+        // MARK GENERATED (ANTI REFRESH)
+        sessionStorage.setItem("generated","true");
+
+        document.getElementById("key").innerText = data.key;
+
+        // START COOLDOWN TIMER
+        cooldownSeconds = 60;
+        startCooldownTimer();
+
+    }catch(e){
+        document.getElementById("key").innerText = "SERVER ERROR";
+    }
 }
-
-let keyRes = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+token);
-let data = await keyRes.json();
-
-if(data.status !== "success"){
-document.getElementById("key").innerText = data.message;
-return;
-}
-
-localStorage.setItem("kaze_last_key", Date.now());
-
-document.getElementById("key").innerText = data.key;
-
-}catch(e){
-
-document.getElementById("key").innerText="SERVER ERROR";
-
-}
-
-}
-
 
 // ======================
-// COPY
+// COOLDOWN TIMER
 // ======================
+function startCooldownTimer(){
+    let timerEl = document.getElementById("timer");
+    timerEl.innerText = `Please wait ${cooldownSeconds}s before getting a new key`;
 
+    let interval = setInterval(()=>{
+        cooldownSeconds--;
+        if(cooldownSeconds <= 0){
+            clearInterval(interval);
+            timerEl.innerText = "";
+            cooldownSeconds = 0;
+        } else {
+            timerEl.innerText = `Please wait ${cooldownSeconds}s before getting a new key`;
+        }
+    }, 1000);
+}
+
+// ======================
+// COPY KEY FUNCTION
+// ======================
 function copyKey(){
+    let key = document.getElementById("key").innerText;
+    navigator.clipboard.writeText(key);
+    alert("Key copied!");
 
-let key=document.getElementById("key").innerText;
-
-navigator.clipboard.writeText(key);
-
-alert("Key copied!");
-
+    // Redirect to main page after copy
+    window.location.href = "https://kazehayamodz-main-page.onrender.com";
 }
 
+// ======================
+// PREVENT BACK BUTTON
+// ======================
+history.pushState(null,null,location.href);
+window.onpopstate = function(){ history.go(1); }
 
 // ======================
-// BLOCK BACK BUTTON
+// LOAD KEY ON PAGE LOAD
 // ======================
-
-history.pushState(null,null,location.href);
-
-window.onpopstate=function(){
-history.pushState(null,null,location.href);
-};
-
-
 window.onload = loadKey;
-
 </script>
 
 </body>
