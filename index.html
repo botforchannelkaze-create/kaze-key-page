@@ -3,40 +3,110 @@
 <head>
 <meta charset="UTF-8">
 <title>Kaze Key System</title>
+
 <style>
-body {
+
+body{
     background:#0b0f16;
     color:white;
     font-family:sans-serif;
     text-align:center;
     margin-top:100px;
 }
-h2 { font-size:32px; letter-spacing:1px; }
-#key { font-size:26px; font-weight:bold; margin-top:40px; }
-button {
-    padding:16px 50px;
-    font-size:20px;
-    background:#00ffd5;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-    color:#000;
+
+/* TITLE */
+h2{
+    font-size:34px;
+    letter-spacing:1px;
+}
+
+/* KEY BOX */
+#key{
+    font-size:24px;
     font-weight:bold;
-    box-shadow:0 0 15px rgba(0,255,213,0.5);
+    margin-top:40px;
+    padding:18px;
+    border-radius:12px;
+    border:2px solid #00ffd5;
+    display:inline-block;
+    min-width:260px;
+    background:#0f1624;
+    box-shadow:0 0 15px rgba(0,255,213,0.3);
+}
+
+/* TIMER */
+#timer{
+    margin-top:20px;
+    font-size:18px;
+    color:#ff5555;
+}
+
+/* COPY BUTTON */
+button{
+    margin-top:30px;
+    padding:18px 70px;
+    font-size:22px;
+    border:none;
+    border-radius:14px;
+    cursor:pointer;
+    color:white;
+    font-weight:bold;
+    position:relative;
+    overflow:hidden;
     transition:0.2s;
 }
-button:hover { transform:scale(1.05); }
-#timer { margin-top:20px; font-size:18px; color:#ff5555; }
+
+/* RAINBOW ANIMATION */
+button::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(
+        45deg,
+        red,
+        orange,
+        yellow,
+        lime,
+        cyan,
+        blue,
+        violet,
+        red
+    );
+    background-size:400%;
+    animation:rainbow 6s linear infinite;
+    z-index:0;
+}
+
+button span{
+    position:relative;
+    z-index:1;
+}
+
+@keyframes rainbow{
+    0%{background-position:0%}
+    100%{background-position:400%}
+}
+
+button:hover{
+    transform:scale(1.06);
+}
+
 </style>
+
 </head>
 <body>
 
 <h2>KAZE LICENSE KEY</h2>
 
 <div id="key">Loading key...</div>
+
 <div id="timer"></div>
+
 <br>
-<button onclick="copyKey()">COPY KEY</button>
+
+<button onclick="copyKey()">
+<span>🔑 COPY KEY</span>
+</button>
 
 <script>
 // ======================
@@ -49,7 +119,6 @@ if(!ref.includes("kazehayamodz-main-page.onrender.com") &&
    !ref.includes("youtube") &&
    !ref.includes("tiktok.com") &&
    !ref.includes("shopee.ph")){
-    // Redirect to main page if direct access
     window.location.href = "https://kazehayamodz-main-page.onrender.com";
 }
 
@@ -72,7 +141,6 @@ async function loadKey(){
     try{
         document.getElementById("key").innerText = "Loading key...";
 
-        // GET TOKEN
         let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
         let token = await tokenRes.text();
 
@@ -81,7 +149,6 @@ async function loadKey(){
             return;
         }
 
-        // GET KEY
         let keyRes = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
         let data = await keyRes.json();
 
@@ -90,12 +157,10 @@ async function loadKey(){
             return;
         }
 
-        // MARK GENERATED (ANTI REFRESH)
         sessionStorage.setItem("generated","true");
 
         document.getElementById("key").innerText = data.key;
 
-        // START COOLDOWN TIMER
         cooldownSeconds = 60;
         startCooldownTimer();
 
@@ -135,13 +200,10 @@ function copyKey(){
 
 let key = document.getElementById("key").innerText;
 
-// copy to clipboard
 navigator.clipboard.writeText(key);
 
-// mark key as used
 sessionStorage.setItem("key_done","true");
 
-// redirect to main page
 window.location.replace("https://kazehayamodz-main-page.onrender.com");
 
 }
@@ -156,6 +218,7 @@ window.onpopstate = function(){ history.go(1); }
 // LOAD KEY ON PAGE LOAD
 // ======================
 window.onload = loadKey;
+
 </script>
 
 </body>
