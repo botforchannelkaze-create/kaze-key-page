@@ -111,11 +111,11 @@ button:hover{
 // ======================
 // BLOCK DIRECT ACCESS / REFRESH
 // ======================
-let ref = document.referrer;
-if(
-    (!sessionStorage.getItem("generated")) &&
-    !ref.includes("kazehayamodz-main-page.onrender.com")
-){
+let params = new URLSearchParams(window.location.search);
+let pass = params.get("pass");
+let step = params.get("step");
+
+if(pass !== "1" || step !== "gplinks"){
     window.location.href = "https://kazehayamodz-main-page.onrender.com";
 }
 
