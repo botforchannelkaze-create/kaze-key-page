@@ -120,16 +120,27 @@ function startCooldownTimer(){
     }, 1000);
 }
 
+// BLOCK RETURN AFTER COPY
+if(sessionStorage.getItem("key_done")){
+window.location.replace("https://kazehayamodz-main-page.onrender.com");
+}
+
 // ======================
 // COPY KEY FUNCTION
 // ======================
 function copyKey(){
-    let key = document.getElementById("key").innerText;
-    navigator.clipboard.writeText(key);
-    alert("Key copied!");
 
-    // Redirect to main page after copy
-    window.location.href = "https://kazehayamodz-main-page.onrender.com";
+let key = document.getElementById("key").innerText;
+
+// copy to clipboard
+navigator.clipboard.writeText(key);
+
+// mark key as used
+sessionStorage.setItem("key_done","true");
+
+// redirect to main page
+window.location.replace("https://kazehayamodz-main-page.onrender.com");
+
 }
 
 // ======================
