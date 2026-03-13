@@ -34,16 +34,10 @@ cursor:pointer;
 color:#000;
 font-weight:bold;
 box-shadow:0 0 15px rgba(0,255,213,0.5);
-transition:0.2s;
-}
-
-button:hover{
-transform:scale(1.05);
 }
 
 #timer{
 margin-top:20px;
-font-size:18px;
 color:#ff5555;
 }
 </style>
@@ -63,27 +57,25 @@ color:#ff5555;
 <script>
 
 // ======================
-// REFERRER CHECK
+// REDIRECT IF DIRECT OPEN
 // ======================
 
 let ref = document.referrer;
 
-// kung diretsong binuksan page
 if(!ref){
-window.location.href="https://kaze-key-page.onrender.com";
+window.location.href="https://kazehayamodz-main-page.onrender.com";
 }
 
-// kung hindi galing sa ads
 if(!ref.includes("work.ink") && !ref.includes("gplinks")){
-window.location.href="https://kaze-key-page.onrender.com";
+window.location.href="https://kazehayamodz-main-page.onrender.com";
 }
 
 
 // ======================
-// BROWSER COOLDOWN
+// 1 MINUTE COOLDOWN
 // ======================
 
-let cooldown = 60000; // 1 minute
+let cooldown = 60000;
 let last = localStorage.getItem("kaze_last_key");
 
 if(last){
@@ -92,12 +84,12 @@ let diff = Date.now() - last;
 
 if(diff < cooldown){
 
-let remain = Math.ceil((cooldown - diff)/1000);
+let remain = Math.ceil((cooldown-diff)/1000);
 
 document.getElementById("key").innerText="Cooldown active";
 document.getElementById("timer").innerText="Wait "+remain+" seconds";
 
-throw new Error("cooldown active");
+throw new Error("cooldown");
 
 }
 
@@ -114,7 +106,6 @@ try{
 
 document.getElementById("key").innerText="Loading key...";
 
-// GET TOKEN
 let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
 let token = await tokenRes.text();
 
@@ -123,20 +114,17 @@ document.getElementById("key").innerText = token;
 return;
 }
 
-// GET KEY
 let keyRes = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+token);
 let data = await keyRes.json();
 
 if(data.status !== "success"){
-document.getElementById("key").innerText=data.message;
+document.getElementById("key").innerText = data.message;
 return;
 }
 
-// SAVE COOLDOWN TIME
-localStorage.setItem("kaze_last_key",Date.now());
+localStorage.setItem("kaze_last_key", Date.now());
 
-// SHOW KEY
-document.getElementById("key").innerText=data.key;
+document.getElementById("key").innerText = data.key;
 
 }catch(e){
 
@@ -148,7 +136,7 @@ document.getElementById("key").innerText="SERVER ERROR";
 
 
 // ======================
-// COPY KEY
+// COPY
 // ======================
 
 function copyKey(){
@@ -168,14 +156,12 @@ alert("Key copied!");
 
 history.pushState(null,null,location.href);
 
-window.addEventListener("popstate",function(){
+window.onpopstate=function(){
 history.pushState(null,null,location.href);
-});
+};
 
 
-// ======================
 window.onload = loadKey;
-// ======================
 
 </script>
 
