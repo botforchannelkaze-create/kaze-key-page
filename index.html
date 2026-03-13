@@ -40,6 +40,12 @@ transition:0.2s;
 button:hover{
 transform:scale(1.05);
 }
+
+#timer{
+margin-top:20px;
+font-size:18px;
+color:#ff5555;
+}
 </style>
 
 </head>
@@ -49,48 +55,75 @@ transform:scale(1.05);
 <h2>KAZE LICENSE KEY</h2>
 
 <div id="key">Loading key...</div>
+<div id="timer"></div>
 
-<br><br>
-
+<br>
 <button onclick="copyKey()">COPY KEY</button>
 
 <script>
 
 // ======================
-// CHECK REFERRER
+// REFERRER CHECK
 // ======================
+
 let ref = document.referrer;
 
-if(!ref || (!ref.includes("gplinks") && !ref.includes("work.ink"))){
-window.location.href = "https://gplinks.co/Kaze-DailyGetFreeKey";
+// kung diretsong binuksan page
+if(!ref){
+window.location.href="https://kaze-key-page.onrender.com";
+}
+
+// kung hindi galing sa ads
+if(!ref.includes("work.ink") && !ref.includes("gplinks")){
+window.location.href="https://kaze-key-page.onrender.com";
 }
 
 
 // ======================
-// BLOCK MULTIPLE KEYS
+// BROWSER COOLDOWN
 // ======================
-if(localStorage.getItem("kaze_key_used")){
-window.location.href = "https://gplinks.co/Kaze-DailyGetFreeKey";
+
+let cooldown = 60000; // 1 minute
+let last = localStorage.getItem("kaze_last_key");
+
+if(last){
+
+let diff = Date.now() - last;
+
+if(diff < cooldown){
+
+let remain = Math.ceil((cooldown - diff)/1000);
+
+document.getElementById("key").innerText="Cooldown active";
+document.getElementById("timer").innerText="Wait "+remain+" seconds";
+
+throw new Error("cooldown active");
+
+}
+
 }
 
 
 // ======================
 // LOAD KEY
 // ======================
+
 async function loadKey(){
 
 try{
 
 document.getElementById("key").innerText="Loading key...";
 
+// GET TOKEN
 let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
 let token = await tokenRes.text();
 
 if(token.includes("Wait") || token.includes("Cooldown")){
-document.getElementById("key").innerText=token;
+document.getElementById("key").innerText = token;
 return;
 }
 
+// GET KEY
 let keyRes = await fetch("https://codm-injector-panel.onrender.com/getkey?token="+token);
 let data = await keyRes.json();
 
@@ -99,9 +132,10 @@ document.getElementById("key").innerText=data.message;
 return;
 }
 
-// mark browser used
-localStorage.setItem("kaze_key_used","true");
+// SAVE COOLDOWN TIME
+localStorage.setItem("kaze_last_key",Date.now());
 
+// SHOW KEY
 document.getElementById("key").innerText=data.key;
 
 }catch(e){
@@ -116,6 +150,7 @@ document.getElementById("key").innerText="SERVER ERROR";
 // ======================
 // COPY KEY
 // ======================
+
 function copyKey(){
 
 let key=document.getElementById("key").innerText;
@@ -124,26 +159,22 @@ navigator.clipboard.writeText(key);
 
 alert("Key copied!");
 
-// redirect after copy
-window.location.href="https://gplinks.co/Kaze-DailyGetFreeKey";
-
 }
 
 
 // ======================
 // BLOCK BACK BUTTON
 // ======================
+
 history.pushState(null,null,location.href);
 
 window.addEventListener("popstate",function(){
-
 history.pushState(null,null,location.href);
-
 });
 
 
 // ======================
-window.onload=loadKey;
+window.onload = loadKey;
 // ======================
 
 </script>
