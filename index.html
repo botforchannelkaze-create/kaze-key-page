@@ -5,120 +5,112 @@
 <title>KAZE SECURE KEY SYSTEM</title>
 
 <style>
-body {
-    background: #0b0f16;
-    color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    text-align: center;
-    margin-top: 80px;
+body{
+background:#0b0f16;
+color:white;
+font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+text-align:center;
+margin-top:80px;
 }
 
-/* TITLE */
-h2 {
-    font-size: 42px;
-    letter-spacing: 2px;
-    margin-bottom: 20px;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+h2{
+font-size:42px;
+letter-spacing:2px;
+margin-bottom:20px;
+text-shadow:0 0 15px rgba(255,255,255,0.1);
 }
 
-/* KEY BOX */
-#key {
-    font-size: 36px;
-    font-weight: bold;
-    margin-top: 50px;
-    padding: 30px 40px;
-    border-radius: 20px;
-    border: 4px solid #00ffd5;
-    display: inline-block;
-    min-width: 350px;
-    background: #0f1624;
-    box-shadow: 0 0 30px rgba(0, 255, 213, 0.4);
-    transition: 0.3s;
+#key{
+font-size:36px;
+font-weight:bold;
+margin-top:50px;
+padding:30px 40px;
+border-radius:20px;
+border:4px solid #00ffd5;
+display:inline-block;
+min-width:350px;
+background:#0f1624;
+box-shadow:0 0 30px rgba(0,255,213,0.4);
 }
 
-/* TIMER */
-#timer {
-    margin-top: 25px;
-    font-size: 24px;
-    color: #ff4444;
-    font-weight: bold;
-    text-transform: uppercase;
+#timer{
+margin-top:25px;
+font-size:24px;
+color:#ff4444;
+font-weight:bold;
+text-transform:uppercase;
 }
 
-/* LARGE RED ROTATING BUTTON */
-button {
-    margin-top: 60px;
-    padding: 35px 120px; /* Mas malaki na ito */
-    font-size: 32px;
-    font-weight: 900;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    color: white;
-    position: relative;
-    background: #111; /* Dark base */
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+button{
+margin-top:60px;
+padding:35px 120px;
+font-size:32px;
+font-weight:900;
+border:none;
+border-radius:25px;
+cursor:pointer;
+color:white;
+position:relative;
+background:#111;
+overflow:hidden;
+transition:transform .2s,box-shadow .2s;
+display:inline-flex;
+align-items:center;
+justify-content:center;
 }
 
-/* ANG PAIKOT NA RED LIGHT */
-button::before {
-    content: "";
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: conic-gradient(
-        transparent, 
-        transparent, 
-        transparent, 
-        #ff0000 /* Ang kulay red */
-    );
-    animation: rotate 1.5s linear infinite;
-    z-index: 0;
+button::before{
+content:"";
+position:absolute;
+width:200%;
+height:200%;
+background:conic-gradient(
+transparent,
+transparent,
+transparent,
+#ff0000
+);
+animation:rotate 1.5s linear infinite;
+z-index:0;
 }
 
-/* INNER LAYER PARA MAGMUKHANG BORDER YUNG RED */
-button::after {
-    content: "";
-    position: absolute;
-    inset: 4px; /* Kapal ng border */
-    background: #111;
-    border-radius: 21px;
-    z-index: 0;
+button::after{
+content:"";
+position:absolute;
+inset:4px;
+background:#111;
+border-radius:21px;
+z-index:0;
 }
 
-button span {
-    position: relative;
-    z-index: 1;
-    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+button span{
+position:relative;
+z-index:1;
+text-shadow:0 0 10px rgba(255,0,0,.8);
 }
 
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+@keyframes rotate{
+from{transform:rotate(0deg);}
+to{transform:rotate(360deg);}
 }
 
-button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+button:hover{
+transform:scale(1.1);
+box-shadow:0 0 40px rgba(255,0,0,.6);
 }
 
-button:active {
-    transform: scale(0.95);
+button:active{
+transform:scale(.95);
 }
 
-/* INFO */
-#info {
-    margin-top: 50px;
-    font-size: 18px;
-    color: #888;
-    line-height: 1.6;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+#info{
+margin-top:50px;
+font-size:18px;
+color:#888;
+line-height:1.6;
+max-width:600px;
+margin-left:auto;
+margin-right:auto;
 }
 </style>
 </head>
@@ -134,111 +126,129 @@ button:active {
 <br>
 
 <button onclick="copyKey()">
-    <span>🔑 COPY KEY</span>
+<span>🔑 COPY KEY</span>
 </button>
 
 <div id="info">
-    Default 12-hour key | Next key available in 16 mins
+Default 12-hour key | Next key available in 16 mins
 </div>
 
 <script>
 
-// ======================
-// PARAM CHECK
-// ======================
+/* ======================
+PARAM CHECK
+====================== */
 
-let params = new URLSearchParams(window.location.search);
-let pass = params.get("pass");
-let step = params.get("step");
+let params=new URLSearchParams(window.location.search);
+let pass=params.get("pass");
+let step=params.get("step");
 
-if(pass !== "1" || step !== "gplinks"){
-    window.location.replace("https://kazehayamodz-main-page.onrender.com");
+if(pass!=="1"||step!=="gplinks"){
+location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
-// ======================
-// REFRESH BLOCK
-// ======================
+/* ======================
+REFRESH BLOCK
+====================== */
 
-if (performance.navigation.type === 1) {
-    window.location.replace("https://kazehayamodz-main-page.onrender.com");
+if(performance.navigation.type===1){
+location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
-// ======================
-// REFERRER CHECK
-// ======================
+/* ======================
+REFERRER CHECK
+ALLOW MAIN PAGE + GPLINKS
+====================== */
 
-if (!document.referrer.includes("kazehayamodz-main-page.onrender.com")) {
-    window.location.replace("https://kazehayamodz-main-page.onrender.com");
+let ref=document.referrer.toLowerCase();
+
+if(
+!ref.includes("kazehayamodz-main-page.onrender.com") &&
+!ref.includes("gplinks")
+){
+location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
-// ======================
-// KEY SYSTEM
-// ======================
+/* ======================
+KEY SYSTEM
+====================== */
 
-let cooldownSeconds = 1000;
+let cooldownSeconds=1000;
 
 async function loadKey(){
+
 try{
-    document.getElementById("key").innerText="Loading key...";
 
-    let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
-    let token = await tokenRes.text();
+document.getElementById("key").innerText="Loading key...";
 
-    let keyRes = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
-    let data = await keyRes.json();
+let tokenRes=await fetch("https://codm-injector-panel.onrender.com/token");
+let token=await tokenRes.text();
 
-    if(data.status !== "success"){
-        document.getElementById("key").innerText=data.message;
-        return;
-    }
+let keyRes=await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
+let data=await keyRes.json();
 
-    document.getElementById("key").innerText=data.key;
-    startCooldown();
+if(data.status!=="success"){
+document.getElementById("key").innerText=data.message;
+return;
 }
-catch(e){
-    document.getElementById("key").innerText="FREE KEY DISABLE BY OWNER";
+
+document.getElementById("key").innerText=data.key;
+
+startCooldown();
+
+}catch(e){
+
+document.getElementById("key").innerText="FREE KEY DISABLE BY OWNER";
+
 }
+
 }
 
 function startCooldown(){
 
-    let timer=document.getElementById("timer");
+let timer=document.getElementById("timer");
 
-    let interval=setInterval(()=>{
+let interval=setInterval(()=>{
 
-        cooldownSeconds--;
+cooldownSeconds--;
 
-        if(cooldownSeconds<=0){
-            clearInterval(interval);
-            timer.innerText="Please go to the main link to generate again";
-        }
-        else{
-            timer.innerText=`Please wait ${cooldownSeconds} Sec before generate again key`;
-        }
+if(cooldownSeconds<=0){
 
-    },1000);
+clearInterval(interval);
+
+timer.innerText="Please go to the main link to generate again";
+
+}else{
+
+timer.innerText=`Please wait ${cooldownSeconds} Sec before generate again key`;
+
+}
+
+},1000);
+
 }
 
 function copyKey(){
 
-    let key=document.getElementById("key").innerText;
+let key=document.getElementById("key").innerText;
 
-    navigator.clipboard.writeText(key);
+navigator.clipboard.writeText(key);
 
-    window.location.replace("https://kazehayamodz-main-page.onrender.com");
+location.replace("https://kazehayamodz-main-page.onrender.com");
+
 }
 
-// ======================
-// BACK BUTTON BLOCK
-// ======================
+/* ======================
+BACK BUTTON BLOCK
+====================== */
 
 history.pushState(null,null,location.href);
 
 window.onpopstate=function(){
-    history.go(1);
-}
+history.go(1);
+};
 
-// ======================
+/* ====================== */
 
 window.onload=loadKey;
 
