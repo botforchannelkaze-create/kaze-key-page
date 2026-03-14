@@ -143,7 +143,7 @@ let pass = params.get("pass");
 let step = params.get("step");
 
 if(pass !== "1" || step !== "gplinks"){
-    location.replace("https://kazehayamodz-main-page.onrender.com");
+location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
 /* ======================
@@ -151,21 +151,20 @@ REFRESH BLOCK
 ====================== */
 
 if(performance.navigation.type === 1){
-    location.replace("https://kazehayamodz-main-page.onrender.com");
+location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
 /* ======================
 REFERRER CHECK
-ALLOW MAIN PAGE + GPLINKS
 ====================== */
 
 let ref = document.referrer.toLowerCase();
 
 if(
-    !ref.includes("kazehayamodz-main-page.onrender.com") &&
-    !ref.includes("gplinks")
+!ref.includes("kazehayamodz-main-page.onrender.com") &&
+!ref.includes("gplinks")
 ){
-    location.replace("https://kazehayamodz-main-page.onrender.com");
+location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
 /* ======================
@@ -174,76 +173,97 @@ KEY SYSTEM
 
 async function loadKey(){
 
-    try{
+try{
 
-        document.getElementById("key").innerText = "Loading key...";
+document.getElementById("key").innerText="Generating key...";
 
-        // GET TOKEN
-        let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
-        let tokenData = await tokenRes.json();
+/* TOKEN REQUEST */
 
-        // No cooldown now, ignore
-        let token = tokenData.token || tokenData;
+let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token",{cache:"no-store"});
 
-        // GET KEY
-        let keyRes = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
-        let data = await keyRes.json();
+let tokenData = await tokenRes.json();
 
-        if(data.status !== "success"){
-            document.getElementById("key").innerText = data.message;
-            return;
-        }
+if(!tokenData.token){
+document.getElementById("key").innerText="Server busy. Try again.";
+return;
+}
 
-        let key = data.key;
+let token = tokenData.token;
 
-        // SHOW KEY
-        document.getElementById("key").innerText = key;
+/* KEY REQUEST */
 
-        // AUTO COPY
-        navigator.clipboard.writeText(key).catch(()=>{});
+let keyRes = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`,{cache:"no-store"});
 
-        // START 20s REDIRECT
-        startRedirectTimer();
+let data = await keyRes.json();
 
-    } catch(e) {
-        document.getElementById("key").innerText = "FREE KEY DISABLED BY OWNER";
-    }
+if(data.status !== "success"){
+document.getElementById("key").innerText = data.message || "Key generation failed";
+return;
+}
+
+let key = data.key;
+
+/* SHOW KEY */
+
+document.getElementById("key").innerText = key;
+
+/* AUTO COPY */
+
+navigator.clipboard.writeText(key).catch(()=>{});
+
+/* START REDIRECT */
+
+startRedirectTimer();
+
+}catch(e){
+
+document.getElementById("key").innerText="Server error. Please try again.";
+
+}
 
 }
 
 /* ======================
-20 SECOND AUTO REDIRECT
+20 SECOND REDIRECT
 ====================== */
 
 function startRedirectTimer(){
 
-    let seconds = 20;
-    let timer = document.getElementById("timer");
+let seconds = 20;
+let timer = document.getElementById("timer");
 
-    timer.innerText = `Returning to main page in ${seconds}s...`;
+timer.innerText=`Returning to main page in ${seconds}s...`;
 
-    let interval = setInterval(()=>{
+let interval=setInterval(()=>{
 
-        seconds--;
-        timer.innerText = `Returning to main page in ${seconds}s...`;
+seconds--;
 
-        if(seconds <= 0){
-            clearInterval(interval);
-            location.replace("https://kazehayamodz-main-page.onrender.com");
-        }
+timer.innerText=`Returning to main page in ${seconds}s...`;
 
-    },1000);
+if(seconds<=0){
+
+clearInterval(interval);
+
+location.replace("https://kazehayamodz-main-page.onrender.com");
+
+}
+
+},1000);
 
 }
 
 /* ======================
-COPY KEY BUTTON
+COPY BUTTON
 ====================== */
 
 function copyKey(){
-    let key = document.getElementById("key").innerText;
-    navigator.clipboard.writeText(key);
-    location.replace("https://kazehayamodz-main-page.onrender.com");
+
+let key=document.getElementById("key").innerText;
+
+navigator.clipboard.writeText(key);
+
+location.replace("https://kazehayamodz-main-page.onrender.com");
+
 }
 
 /* ======================
@@ -251,13 +271,16 @@ BACK BUTTON BLOCK
 ====================== */
 
 history.pushState(null,null,location.href);
-window.onpopstate = function(){
-    location.replace("https://kazehayamodz-main-page.onrender.com");
+
+window.onpopstate=function(){
+location.replace("https://kazehayamodz-main-page.onrender.com");
 };
 
 /* ====================== */
-window.onload = loadKey;
+
+window.onload=loadKey;
 
 </script>
+
 </body>
 </html>
