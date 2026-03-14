@@ -120,7 +120,6 @@ margin-right:auto;
 <h2>KAZEHAYAMODZ FREE KEY CODM INJECTOR</h2>
 
 <div id="key">Loading key...</div>
-
 <div id="timer"></div>
 
 <br>
@@ -130,7 +129,7 @@ margin-right:auto;
 </button>
 
 <div id="info">
-Default 12‑hour key | Fixed invalid token issue
+Default 12‑hour key | Auto-copied and redirects after 20 seconds
 </div>
 
 <script>
@@ -183,12 +182,7 @@ async function loadKey(){
         let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
         let tokenData = await tokenRes.json();
 
-        // CHECK COOLDOWN
-        if(tokenData.status === "cooldown"){
-            window.location.href = tokenData.redirect;
-            return;
-        }
-
+        // No cooldown now, ignore
         let token = tokenData.token || tokenData;
 
         // GET KEY
@@ -200,8 +194,13 @@ async function loadKey(){
             return;
         }
 
+        let key = data.key;
+
         // SHOW KEY
-        document.getElementById("key").innerText = data.key;
+        document.getElementById("key").innerText = key;
+
+        // AUTO COPY
+        navigator.clipboard.writeText(key).catch(()=>{});
 
         // START 20s REDIRECT
         startRedirectTimer();
@@ -238,7 +237,7 @@ function startRedirectTimer(){
 }
 
 /* ======================
-COPY KEY
+COPY KEY BUTTON
 ====================== */
 
 function copyKey(){
@@ -253,7 +252,7 @@ BACK BUTTON BLOCK
 
 history.pushState(null,null,location.href);
 window.onpopstate = function(){
-    history.go(1);
+    location.replace("https://kazehayamodz-main-page.onrender.com");
 };
 
 /* ====================== */
