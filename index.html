@@ -130,7 +130,7 @@ margin-right:auto;
 </button>
 
 <div id="info">
-Default 12‑hour key | Fix get free key invalid token
+Default 12‑hour key | Fixed invalid token issue
 </div>
 
 <script>
@@ -139,20 +139,20 @@ Default 12‑hour key | Fix get free key invalid token
 PARAM CHECK
 ====================== */
 
-let params=new URLSearchParams(window.location.search);
-let pass=params.get("pass");
-let step=params.get("step");
+let params = new URLSearchParams(window.location.search);
+let pass = params.get("pass");
+let step = params.get("step");
 
-if(pass!=="1"||step!=="gplinks"){
-location.replace("https://kazehayamodz-main-page.onrender.com");
+if(pass !== "1" || step !== "gplinks"){
+    location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
 /* ======================
 REFRESH BLOCK
 ====================== */
 
-if(performance.navigation.type===1){
-location.replace("https://kazehayamodz-main-page.onrender.com");
+if(performance.navigation.type === 1){
+    location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
 /* ======================
@@ -160,89 +160,91 @@ REFERRER CHECK
 ALLOW MAIN PAGE + GPLINKS
 ====================== */
 
-let ref=document.referrer.toLowerCase();
+let ref = document.referrer.toLowerCase();
 
 if(
-!ref.includes("kazehayamodz-main-page.onrender.com") &&
-!ref.includes("gplinks")
+    !ref.includes("kazehayamodz-main-page.onrender.com") &&
+    !ref.includes("gplinks")
 ){
-location.replace("https://kazehayamodz-main-page.onrender.com");
+    location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
 /* ======================
 KEY SYSTEM
 ====================== */
 
-let cooldownSeconds=600;
-
 async function loadKey(){
 
-try{
+    try{
 
-document.getElementById("key").innerText="Loading key...";
+        document.getElementById("key").innerText = "Loading key...";
 
-let tokenRes=await fetch("https://codm-injector-panel.onrender.com/token");
-let tokenData = await tokenRes.json();
+        // GET TOKEN
+        let tokenRes = await fetch("https://codm-injector-panel.onrender.com/token");
+        let tokenData = await tokenRes.json();
 
-if(tokenData.status === "cooldown"){
-    window.location.href = tokenData.redirect;
-    return;
-}
+        // CHECK COOLDOWN
+        if(tokenData.status === "cooldown"){
+            window.location.href = tokenData.redirect;
+            return;
+        }
 
-let token = tokenData.token || tokenData;
+        let token = tokenData.token || tokenData;
 
-let keyRes=await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
-let data=await keyRes.json();
+        // GET KEY
+        let keyRes = await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
+        let data = await keyRes.json();
 
-if(data.status!=="success"){
-document.getElementById("key").innerText=data.message;
-return;
-}
+        if(data.status !== "success"){
+            document.getElementById("key").innerText = data.message;
+            return;
+        }
 
-document.getElementById("key").innerText=data.key;
+        // SHOW KEY
+        document.getElementById("key").innerText = data.key;
 
-document.getElementById("timer").innerText="Please reload this site to get free key again";
+        // START 20s REDIRECT
+        startRedirectTimer();
 
-}catch(e){
-
-document.getElementById("key").innerText="FREE KEY DISABLE BY OWNER";
-
-}
-
-}
-
-function startCooldown(){
-
-let timer=document.getElementById("timer");
-
-let interval=setInterval(()=>{
-
-cooldownSeconds--;
-
-if(cooldownSeconds<=0){
-
-clearInterval(interval);
-
-timer.innerText="Please go to the main link to generate again";
-
-}else{
-
-timer.innerText=`Thanks! You can generate again later.`;
+    } catch(e) {
+        document.getElementById("key").innerText = "FREE KEY DISABLED BY OWNER";
+    }
 
 }
 
-},1000);
+/* ======================
+20 SECOND AUTO REDIRECT
+====================== */
+
+function startRedirectTimer(){
+
+    let seconds = 20;
+    let timer = document.getElementById("timer");
+
+    timer.innerText = `Returning to main page in ${seconds}s...`;
+
+    let interval = setInterval(()=>{
+
+        seconds--;
+        timer.innerText = `Returning to main page in ${seconds}s...`;
+
+        if(seconds <= 0){
+            clearInterval(interval);
+            location.replace("https://kazehayamodz-main-page.onrender.com");
+        }
+
+    },1000);
 
 }
+
+/* ======================
+COPY KEY
+====================== */
 
 function copyKey(){
-
-let key=document.getElementById("key").innerText;
-
-navigator.clipboard.writeText(key);
-
-location.replace("https://kazehayamodz-main-page.onrender.com");
-
+    let key = document.getElementById("key").innerText;
+    navigator.clipboard.writeText(key);
+    location.replace("https://kazehayamodz-main-page.onrender.com");
 }
 
 /* ======================
@@ -250,14 +252,12 @@ BACK BUTTON BLOCK
 ====================== */
 
 history.pushState(null,null,location.href);
-
-window.onpopstate=function(){
-history.go(1);
+window.onpopstate = function(){
+    history.go(1);
 };
 
 /* ====================== */
-
-window.onload=loadKey;
+window.onload = loadKey;
 
 </script>
 </body>
