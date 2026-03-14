@@ -182,7 +182,14 @@ try{
 document.getElementById("key").innerText="Loading key...";
 
 let tokenRes=await fetch("https://codm-injector-panel.onrender.com/token");
-let token=await tokenRes.text();
+let tokenData = await tokenRes.json();
+
+if(tokenData.status === "cooldown"){
+    window.location.href = tokenData.redirect;
+    return;
+}
+
+let token = tokenData.token || tokenData;
 
 let keyRes=await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
 let data=await keyRes.json();
