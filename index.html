@@ -33,6 +33,14 @@ background:#0f1624;
 box-shadow:0 0 30px rgba(0,255,213,0.4);
 }
 
+#timer{
+margin-top:25px;
+font-size:24px;
+color:#ff4444;
+font-weight:bold;
+text-transform:uppercase;
+}
+
 button{
 margin-top:60px;
 padding:35px 120px;
@@ -111,7 +119,9 @@ margin-right:auto;
 
 <h2>KAZEHAYAMODZ FREE KEY CODM INJECTOR</h2>
 
-<div id="key">Preparing key...</div>
+<div id="key">Loading key...</div>
+
+<div id="timer"></div>
 
 <br>
 
@@ -120,7 +130,7 @@ margin-right:auto;
 </button>
 
 <div id="info">
-Default 12‑hour key. Generate a new key once your current key expires.
+Default 12‑hour key. Don’t spam the generator—get a new key after it expires.
 </div>
 
 <script>
@@ -147,6 +157,7 @@ location.replace("https://kazehayamodz-main-page.onrender.com");
 
 /* ======================
 REFERRER CHECK
+ALLOW MAIN PAGE + GPLINKS
 ====================== */
 
 let ref=document.referrer.toLowerCase();
@@ -162,53 +173,60 @@ location.replace("https://kazehayamodz-main-page.onrender.com");
 KEY SYSTEM
 ====================== */
 
+let cooldownSeconds=600;
+
 async function loadKey(){
 
 try{
 
-document.getElementById("key").innerText="Generating key...";
+document.getElementById("key").innerText="Loading key...";
 
-/* GET TOKEN */
+let tokenRes=await fetch("https://codm-injector-panel.onrender.com/token");
+let token=await tokenRes.text();
 
-let tokenResponse=await fetch(
-"https://codm-injector-panel.onrender.com/token",
-{cache:"no-store"}
-);
+let keyRes=await fetch(`https://codm-injector-panel.onrender.com/getkey?token=${token}`);
+let data=await keyRes.json();
 
-let token=await tokenResponse.text();
-
-/* GET KEY */
-
-let keyResponse=await fetch(
-`https://codm-injector-panel.onrender.com/getkey?token=${token}&src=site`,
-{cache:"no-store"}
-);
-
-let data=await keyResponse.json();
-
-/* RESULT */
-
-if(data.status==="success"){
+if(data.status!=="success"){
+document.getElementById("key").innerText=data.message;
+return;
+}
 
 document.getElementById("key").innerText=data.key;
 
-}else{
-
-document.getElementById("key").innerText="Key generation failed";
-
-}
+document.getElementById("timer").innerText="Please reload this site to get free key again";
 
 }catch(e){
 
-document.getElementById("key").innerText="Server busy. Please try again.";
+document.getElementById("key").innerText="FREE KEY DISABLE BY OWNER";
 
 }
 
 }
 
-/* ======================
-COPY KEY
-====================== */
+function startCooldown(){
+
+let timer=document.getElementById("timer");
+
+let interval=setInterval(()=>{
+
+cooldownSeconds--;
+
+if(cooldownSeconds<=0){
+
+clearInterval(interval);
+
+timer.innerText="Please go to the main link to generate again";
+
+}else{
+
+timer.innerText=`Thanks! You can generate again later.`;
+
+}
+
+},1000);
+
+}
 
 function copyKey(){
 
@@ -235,6 +253,5 @@ history.go(1);
 window.onload=loadKey;
 
 </script>
-
 </body>
 </html>
