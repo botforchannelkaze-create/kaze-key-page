@@ -33,14 +33,6 @@ background:#0f1624;
 box-shadow:0 0 30px rgba(0,255,213,0.4);
 }
 
-#timer{
-margin-top:25px;
-font-size:24px;
-color:#ff4444;
-font-weight:bold;
-text-transform:uppercase;
-}
-
 button{
 margin-top:60px;
 padding:35px 120px;
@@ -121,8 +113,6 @@ margin-right:auto;
 
 <div id="key">Preparing key...</div>
 
-<div id="timer"></div>
-
 <br>
 
 <button onclick="copyKey()">
@@ -130,7 +120,7 @@ margin-right:auto;
 </button>
 
 <div id="info">
-Default 12-hour key. Don’t spam the generator—get a new key after it expires.
+Default 12‑hour key. Generate a new key once your current key expires.
 </div>
 
 <script>
@@ -172,8 +162,6 @@ location.replace("https://kazehayamodz-main-page.onrender.com");
 KEY SYSTEM
 ====================== */
 
-let cooldownSeconds=600;
-
 async function loadKey(){
 
 try{
@@ -188,13 +176,6 @@ let tokenResponse=await fetch(
 );
 
 let token=await tokenResponse.text();
-
-/* TOKEN ERROR CHECK */
-
-if(!token || token.includes("Cooldown") || token.includes("Wait")){
-document.getElementById("key").innerText=token;
-return;
-}
 
 /* GET KEY */
 
@@ -211,11 +192,9 @@ if(data.status==="success"){
 
 document.getElementById("key").innerText=data.key;
 
-startCooldown();
-
 }else{
 
-document.getElementById("key").innerText=data.message || "Key generation failed";
+document.getElementById("key").innerText="Key generation failed";
 
 }
 
@@ -227,29 +206,9 @@ document.getElementById("key").innerText="Server busy. Please try again.";
 
 }
 
-function startCooldown(){
-
-let timer=document.getElementById("timer");
-
-let interval=setInterval(()=>{
-
-cooldownSeconds--;
-
-if(cooldownSeconds<=0){
-
-clearInterval(interval);
-
-timer.innerText="Please go to the main link to generate again";
-
-}else{
-
-timer.innerText="Thanks! You can generate again later.";
-
-}
-
-},1000);
-
-}
+/* ======================
+COPY KEY
+====================== */
 
 function copyKey(){
 
